@@ -8,7 +8,7 @@ const Messages = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        backgroundColor: "yellow",
+        // backgroundColor: "yellow",
         display: { xs: "none", xl: "block" },
         position: "sticky",
         top: "64px",
