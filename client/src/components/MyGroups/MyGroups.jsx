@@ -1,8 +1,33 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
+import MyGroup from "./MyGroup/MyGroup";
 
 const groups = [
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
+  "frwsfvfsfevfs",
+  "TEST NAME",
+  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
   "frwsfvfsfevfs",
   "TEST NAME",
   "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
@@ -20,6 +45,8 @@ const MyGroups = () => {
         position: "sticky",
         top: "64px",
         height: "calc(100vh - 70px)",
+        overflow: "auto",
+        paddingRight: "10px",
       }}
       flex={2}
       paddingY={2}
@@ -28,23 +55,7 @@ const MyGroups = () => {
         Οι ομάδες μου
       </Typography>
       {groups.map((group, index) => (
-        <Link key={index} style={{ textDecoration: "none", color: "white" }}>
-          <Box
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.08)",
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              cursor: "pointer",
-              position: "relative",
-              marginTop: "10px",
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.15)",
-              },
-            }}
-          >
-            {group}
-          </Box>
-        </Link>
+        <MyGroup key={index} name={group} />
       ))}
     </Box>
   );

@@ -206,7 +206,6 @@ const Auth = () => {
       >
         <Card
           sx={{
-            backgroundColor: "white",
             display: "flex",
             width: "60%",
             height: { xs: "fit-content", md: "65%" },
@@ -296,7 +295,7 @@ const Auth = () => {
                 onClick={handleChange}
                 data-tooltip-id="problems-tooltip"
               >
-                {isSignUp ? "Sign Up" : "Sign In"}
+                {isSignUp ? "ΕΓΓΡΑΦΗ" : "ΣΥΝΔΕΣΗ"}
               </Button>
               {problems.length && isSignUp ? (
                 <Tooltip
@@ -321,8 +320,8 @@ const Auth = () => {
                 <Grid item>
                   <Button onClick={switchMode}>
                     {isSignUp
-                      ? "Already have an account? Sign In"
-                      : "Don't have an account? Sign Up"}
+                      ? "ΣΥΝΔΕΣΗ"
+                      : "ΕΓΓΡΑΦΗ"}
                   </Button>
                 </Grid>
               </Grid>
