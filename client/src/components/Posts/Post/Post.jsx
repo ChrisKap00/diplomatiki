@@ -374,7 +374,7 @@ export default function Post({ post }) {
                     setComment(e.target.value);
                   }}
                   name="inputName"
-                  placeholder="Write a comment..."
+                  placeholder="Γράψτε ένα σχόλιο..."
                 />
               </CommentForm>
             </div>

@@ -2,9 +2,12 @@ import { Box } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 
-const MyGroup = ({ name }) => {
+const MyGroup = ({ group }) => {
   return (
-    <Link style={{ textDecoration: "none", color: "white" }}>
+    <Link
+      to={`/group/${group._id}`}
+      style={{ textDecoration: "none", color: "white" }}
+    >
       <Box
         sx={{
           backgroundColor: "rgba(255, 255, 255, 0.08)",
@@ -17,9 +20,10 @@ const MyGroup = ({ name }) => {
           "&:hover": {
             backgroundColor: "rgba(255, 255, 255, 0.15)",
           },
+          transition: "0.2s",
         }}
       >
-        {name}
+        {group.name}
       </Box>
     </Link>
   );

@@ -1,46 +1,18 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import MyGroup from "./MyGroup/MyGroup";
 
-const groups = [
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-  "frwsfvfsfevfs",
-  "TEST NAME",
-  "LONG TEST NAME GSRRZVSECR 45W4QD3WWERCZSECERCWER 3AWX",
-];
-
 const MyGroups = () => {
+  const { groups } = useSelector((state) => state.groups);
+  const { user } = useSelector((state) => state.auth);
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        // backgroundColor: "red",
         display: { xs: "none", md: "block" },
         position: "sticky",
         top: "64px",
@@ -54,9 +26,13 @@ const MyGroups = () => {
       <Typography variant="h5" sx={{ fontWeight: "600" }}>
         Οι ομάδες μου
       </Typography>
-      {groups.map((group, index) => (
-        <MyGroup key={index} name={group} />
-      ))}
+      {groups &&
+        groups.map(
+          (group, index) =>
+            group.users.findIndex((e) => e._id === user.result._id) > -1 && (
+              <MyGroup key={index} group={group} />
+            )
+        )}
     </Box>
   );
 };

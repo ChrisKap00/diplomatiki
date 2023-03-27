@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import React from "react";
 import testImage from "../../assets/login_bg.jpg";
+import Create from "./Create/Create";
 import Post from "./Post/Post";
 
 const posts = [
@@ -58,6 +59,7 @@ const Posts = () => {
       flex={5}
       p={2}
     >
+      <Create />
       {posts.map((post, index) => (
         <Post key={index} post={post} />
       ))}
