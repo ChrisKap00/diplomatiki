@@ -25,3 +25,5 @@ export const followGroup = ({
   API.patch(
     `/groups/follow?userId=${userId}&firstName=${firstName}&lastName=${lastName}&pfp=${pfp}&groupId=${groupId}`
   );
+
+export const post = (postData) => API.post("/post/post", postData);

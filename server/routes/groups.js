@@ -45,6 +45,12 @@ router.post("/create", async (req, res) => {
 router.get("/fetchGroups", async (req, res) => {
   try {
     const groups = await Group.find({});
+    for (let group of groups) {
+      group.posts = undefined;
+      for (let user of group.users) {
+        user.pfp = undefined;
+      }
+    }
     return res.status(200).json({ error: 0, groups });
   } catch (error) {
     console.log(error);
@@ -52,7 +58,6 @@ router.get("/fetchGroups", async (req, res) => {
   }
 });
 
-export default router;
 
 router.patch("/follow", async (req, res) => {
   try {
@@ -90,3 +95,5 @@ router.patch("/follow", async (req, res) => {
     return res.status(500).json({ error: 1 });
   }
 });
+
+export default router;
