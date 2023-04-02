@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
   password: { type: String, required: true },
   pfp: { type: String, required: false },
   verified: { type: Boolean, default: false },
-  groups: { type: [{ _id: String }], default: [] },
+  groups: { type: [String], default: [] },
   posts: { type: [{ _id: String, groupId: String }], default: [] },
 });
 

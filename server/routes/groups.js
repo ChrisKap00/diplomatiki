@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import Group from "../models/group.js";
+import User from "../models/user.js";
 
 const router = express.Router();
 
@@ -31,6 +32,9 @@ router.post("/create", async (req, res) => {
       name,
       users: [user],
     });
+    const oldUser = await User.findById(user._id);
+    oldUser.groups.push(result._id);
+    const newUser = await User.findByIdAndUpdate(user, oldUser, { new: true });
     return res.status(200).json({
       error: 0,
       message: `Η ομάδα ${code} - ${name} δημιουργήθηκε επιτυχώς.`,
@@ -57,7 +61,6 @@ router.get("/fetchGroups", async (req, res) => {
     return res.status(500).json({ error: 1 });
   }
 });
-
 
 router.patch("/follow", async (req, res) => {
   try {

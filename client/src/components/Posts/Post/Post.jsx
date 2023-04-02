@@ -27,6 +27,7 @@ import {
   FavoriteBorder,
   FolderZip,
   InsertDriveFile,
+  KeyboardArrowRightRounded,
 } from "@mui/icons-material";
 import TextareaAutosize from "@mui/base/TextareaAutosize";
 import defaultPfp from "../../../assets/defaultPfp.jpg";
@@ -36,6 +37,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import CommentComponent from "./Comment/Comment";
 import { Link, useLocation } from "react-router-dom";
+import { deletePost } from "../../../store/actions/posts";
 
 const CommentForm = styled("form")(({ theme }) => ({
   position: "relative",
@@ -165,7 +167,7 @@ export default function Post({ post }) {
   const handleDelete = () => {
     console.log(`Deleting post ${post._id}`);
     closeDeleteConfirmationModal();
-    // dispatch(deletePost(post._id, post.creatorId, location.pathname));
+    dispatch(deletePost(post._id));
   };
 
   const renderMenu = (
@@ -194,16 +196,21 @@ export default function Post({ post }) {
         sx={{
           width: { xs: "100%", xl: "90%" },
           marginBottom: "20px",
-          opacity: post.temporary || post.temporaryDelete ? "50%" : "100%",
+          opacity:
+            post.postedAt === "Posting..." || post.postedAt === "Deleting..."
+              ? "50%"
+              : "100%",
           pointerEvents:
-            post.temporary || post.temporaryDelete ? "none" : "auto",
+            post.postedAt === "Posting..." || post.postedAt === "Deleting..."
+              ? "none"
+              : "auto",
         }}
         elevation={10}
       >
         <CardHeader
           avatar={
             <Link
-              to={`/profile?id=${post.userId}`}
+              to={`/profile/${post.userId}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <Avatar src={defaultPfp}></Avatar>
@@ -215,18 +222,25 @@ export default function Post({ post }) {
             </IconButton>
           }
           title={
-            <Link
-              to={`/profile?id=${post.userId}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              {post.userName}
-            </Link>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Link
+                to={`/profile/${post.userId}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                {post.userName}
+              </Link>
+              <KeyboardArrowRightRounded />
+              <Link
+                to={`/group/${post.groupId}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                {post.groupName}
+              </Link>
+            </Box>
           }
           subheader={
-            post.temporary
-              ? "Posting..."
-              : post.temporaryDelete
-              ? "Deleting..."
+            post.postedAt === "Posting..." || post.postedAt === "Deleting..."
+              ? post.postedAt
               : moment(post.postedAt).fromNow()
           }
         />
@@ -290,7 +304,7 @@ export default function Post({ post }) {
             </>
           )}
         </CardContent>
-        {post?.images?.length && (
+        {post?.images.length > 0 && (
           <CardMedia
             component="img"
             // height="50%"

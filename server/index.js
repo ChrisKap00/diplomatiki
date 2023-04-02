@@ -5,7 +5,7 @@ import cors from "cors";
 
 import authRoutes from "./routes/auth.js";
 import groupRoutes from "./routes/groups.js";
-import postRoutes from "./routes/post.js";
+import postRoutes from "./routes/posts.js";
 
 const app = express();
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -14,7 +14,7 @@ app.use(cors());
 
 app.use("/auth", authRoutes);
 app.use("/groups", groupRoutes);
-app.use("/post", postRoutes);
+app.use("/posts", postRoutes);
 
 const PORT = 5000;
 

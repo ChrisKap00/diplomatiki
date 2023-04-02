@@ -26,4 +26,6 @@ export const followGroup = ({
     `/groups/follow?userId=${userId}&firstName=${firstName}&lastName=${lastName}&pfp=${pfp}&groupId=${groupId}`
   );
 
-export const post = (postData) => API.post("/post/post", postData);
+export const post = (postData) => API.post("/posts/post", postData);
+export const fetchPosts = (params) => API.post(`/posts/fetch`, params);
+export const deletePost = (id) => API.delete(`/posts/delete?postId=${id}`);

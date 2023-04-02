@@ -114,7 +114,11 @@ const Dropdown = ({
                       }}
                       onClick={() => {
                         setSelectedGroup(group);
-                        setPostData({ ...postData, groupId: group._id });
+                        setPostData({
+                          ...postData,
+                          groupId: group._id,
+                          groupName: `${group.code} - ${group.name}`,
+                        });
                         setOpen(false);
                       }}
                     ></div>

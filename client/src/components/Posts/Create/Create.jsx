@@ -29,7 +29,7 @@ import { createGroup } from "../../../store/actions/groups";
 import Dropdown from "../../Dropdown/Dropdown";
 import FileBase from "react-file-base64";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
-import { post } from "../../../store/actions/post";
+import { post } from "../../../store/actions/posts";
 
 const MyTextField = styled("form")(({ theme }) => ({
   position: "relative",
@@ -72,7 +72,10 @@ const Create = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [postData, setPostData] = useState({
     userId: user.result._id,
+    userName: `${user.result.firstName} ${user.result.lastName}`,
+    userPfp: user.result.pfp,
     groupId: null,
+    groupName: null,
     text: "",
     images: [],
     file: null,
@@ -310,18 +313,18 @@ const Create = () => {
                 }
                 onClick={() => {
                   dispatch(post(postData));
-                  textRef.current.value = "";
-                  setSelectedGroup(null);
-                  setPostData({
-                    ...postData,
-                    groupId: null,
-                    text: "",
-                    images: [],
-                    file: null,
-                  });
+                  // textRef.current.value = "";
+                  // setSelectedGroup(null);
+                  // setPostData({
+                  //   ...postData,
+                  //   groupId: null,
+                  //   text: "",
+                  //   images: [],
+                  //   file: null,
+                  // });
                 }}
               >
-                Δημιουργια
+                Δημοσιευση
               </Button>
             </Box>
           </Box>
