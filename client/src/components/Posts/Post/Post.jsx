@@ -194,7 +194,10 @@ export default function Post({ post }) {
     <>
       <Card
         sx={{
-          width: { xs: "100%", xl: "90%" },
+          width:
+            location.pathname.split("/")[1] === "group"
+              ? { xs: "100%", lg: "97%" }
+              : { xs: "100%", xl: "90%" },
           marginBottom: "20px",
           opacity:
             post.postedAt === "Posting..." || post.postedAt === "Deleting..."

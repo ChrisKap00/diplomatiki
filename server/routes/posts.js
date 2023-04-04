@@ -44,16 +44,24 @@ router.post("/fetch", async (req, res) => {
   // console.log(req.body);
   try {
     const { userId, groups, page, groupId, profileId } = req.body;
-    let posts = [];
-    const existingPosts = await Post.find({});
-    for (let post of existingPosts) {
-      if (groups.includes(post.groupId)) {
-        posts.push(post);
+    if (groups) {
+      let posts = [];
+      const existingPosts = await Post.find({});
+      for (let post of existingPosts) {
+        if (groups.includes(post.groupId)) {
+          posts.push(post);
+        }
       }
+      posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
+      posts = posts.splice(page, page + 5);
+      // console.log(posts.splice(page, page + 5));
+      res.status(200).json({ error: 0, posts });
+    } else if (groupId) {
+      let posts = await Post.find({ groupId });
+      posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
+      posts = posts.splice(page, page + 5);
+      res.status(200).json({ error: 0, posts });
     }
-    posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
-    // console.log(posts.splice(page, page + 5));
-    res.status(200).json({ error: 0, posts });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });

@@ -1,11 +1,16 @@
 import { Box, Card } from "@mui/material";
+import { useLocation } from "react-router-dom";
 import React from "react";
 
 const LoadingPost = () => {
+  const location = useLocation();
   return (
     <Card
       sx={{
-        width: { xs: "100%", xl: "90%" },
+        width:
+          location.pathname.split("/")[1] === "group"
+            ? { xs: "100%", lg: "97%" }
+            : { xs: "100%", xl: "90%" },
         marginBottom: "20px",
       }}
       elevation={10}

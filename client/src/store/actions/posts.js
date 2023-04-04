@@ -45,6 +45,7 @@ export const post = (postData) => async (dispatch) => {
 };
 
 export const fetchPosts = (params) => async (dispatch) => {
+  dispatch({ type: "START_LOADING_FETCH_POSTS" });
   try {
     const { data } = await api.fetchPosts(params);
     console.log(data);
@@ -54,6 +55,7 @@ export const fetchPosts = (params) => async (dispatch) => {
   } catch (error) {
     console.log(error);
   }
+  dispatch({ type: "STOP_LOADING_FETCH_POSTS" });
 };
 
 export const deletePost = (id) => async (dispatch) => {

@@ -30,6 +30,7 @@ import Dropdown from "../../Dropdown/Dropdown";
 import FileBase from "react-file-base64";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
 import { post } from "../../../store/actions/posts";
+import { useLocation } from "react-router-dom";
 
 const MyTextField = styled("form")(({ theme }) => ({
   position: "relative",
@@ -60,10 +61,11 @@ const StyledInputBase = styled(TextareaAutosize)(({ theme }) => ({
   minWidth: "100%",
 }));
 
-const Create = () => {
+const Create = ({ group }) => {
   const [mode, setMode] = useState(0);
   const [groupData, setGroupData] = useState({ code: "", name: "" });
   const dispatch = useDispatch();
+  const location = useLocation();
   const { user } = useSelector((state) => state.auth);
   const { groups } = useSelector((state) => state.groups);
   const { isLoadingCreateGroup } = useSelector((state) => state.groups);
@@ -83,13 +85,21 @@ const Create = () => {
   const textRef = useRef();
 
   useEffect(() => {
+    if (!group) return;
+    setPostData({ ...postData, groupId: group._id, groupName: group.name });
+  }, [group]);
+
+  useEffect(() => {
     console.log(postData);
   }, [postData]);
 
   return (
     <Card
       sx={{
-        width: { xs: "100%", xl: "90%" },
+        width:
+          location.pathname.split("/")[1] === "group"
+            ? { xs: "100%", lg: "97%" }
+            : { xs: "100%", xl: "90%" },
         marginBottom: "20px",
         pointerEvents: isLoadingCreateGroup ? "none" : "auto",
         opacity: isLoadingCreateGroup ? 0.5 : 1,
@@ -98,27 +108,36 @@ const Create = () => {
       <Box>
         {mode === 0 ? (
           <Box sx={{ padding: "1rem" }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <Typography sx={{ marginRight: "10px" }}>Ομάδα: </Typography>
-              <Dropdown
-                selectedGroup={selectedGroup}
-                setSelectedGroup={setSelectedGroup}
-                postData={postData}
-                setPostData={setPostData}
-              />
-            </Box>
+            {location.pathname.split("/")[1] !== "group" && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Typography sx={{ marginRight: "10px" }}>Ομάδα: </Typography>
+                <Dropdown
+                  selectedGroup={selectedGroup}
+                  setSelectedGroup={setSelectedGroup}
+                  postData={postData}
+                  setPostData={setPostData}
+                />
+              </Box>
+            )}
             <MyTextField
               onChange={(e) => {
                 setPostData({ ...postData, text: e.target.value });
               }}
-              ref={textRef}
+              sx={{
+                marginTop:
+                  location.pathname.split("/")[1] === "group" ? 0 : "20px",
+              }}
             >
-              <StyledInputBase minRows={4} placeholder="Γράψτε δυο λόγια..." />
+              <StyledInputBase
+                ref={textRef}
+                minRows={4}
+                placeholder="Γράψτε δυο λόγια..."
+              />
             </MyTextField>
             <Stack direction="row" gap={1} mt={2}>
               <IconButton component="label">
@@ -313,15 +332,15 @@ const Create = () => {
                 }
                 onClick={() => {
                   dispatch(post(postData));
-                  // textRef.current.value = "";
-                  // setSelectedGroup(null);
-                  // setPostData({
-                  //   ...postData,
-                  //   groupId: null,
-                  //   text: "",
-                  //   images: [],
-                  //   file: null,
-                  // });
+                  textRef.current.value = "";
+                  if (!group) setSelectedGroup(null);
+                  setPostData({
+                    ...postData,
+                    groupId: group ? group._id : null,
+                    text: "",
+                    images: [],
+                    file: null,
+                  });
                 }}
               >
                 Δημοσιευση
@@ -329,116 +348,120 @@ const Create = () => {
             </Box>
           </Box>
         ) : (
-          <>
-            <Box sx={{ padding: "1rem" }}>
-              <Typography>Κωδικός</Typography>
-              <MyTextField>
-                <StyledInputBase
-                  onKeyDown={(e) => {
-                    if (e.code === "Enter") e.preventDefault();
-                  }}
-                  onChange={(e) => {
-                    if (e.code === "Enter") return;
-                    setGroupData({ ...groupData, code: e.target.value });
-                  }}
-                  ref={codeRef}
-                />
-              </MyTextField>
-            </Box>
-            <Box sx={{ padding: "1rem" }}>
-              <Typography>Όνομα</Typography>
-              <MyTextField>
-                <StyledInputBase
-                  onKeyDown={(e) => {
-                    if (e.code === "Enter") e.preventDefault();
-                  }}
-                  onChange={(e) => {
-                    if (e.code === "Enter") return;
-                    setGroupData({ ...groupData, name: e.target.value });
-                  }}
-                  ref={nameRef}
-                />
-              </MyTextField>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                padding: "1rem",
-              }}
-            >
-              <Button
-                variant="contained"
-                disabled={
-                  groupData.code.trim() === "" || groupData.name.trim() === ""
-                }
-                onClick={() => {
-                  dispatch(createGroup(groupData, user.result));
-                  // console.log(codeRef.current.value);
-                  codeRef.current.value = "";
-                  nameRef.current.value = "";
+          !group && (
+            <>
+              <Box sx={{ padding: "1rem" }}>
+                <Typography>Κωδικός</Typography>
+                <MyTextField>
+                  <StyledInputBase
+                    onKeyDown={(e) => {
+                      if (e.code === "Enter") e.preventDefault();
+                    }}
+                    onChange={(e) => {
+                      if (e.code === "Enter") return;
+                      setGroupData({ ...groupData, code: e.target.value });
+                    }}
+                    ref={codeRef}
+                  />
+                </MyTextField>
+              </Box>
+              <Box sx={{ padding: "1rem" }}>
+                <Typography>Όνομα</Typography>
+                <MyTextField>
+                  <StyledInputBase
+                    onKeyDown={(e) => {
+                      if (e.code === "Enter") e.preventDefault();
+                    }}
+                    onChange={(e) => {
+                      if (e.code === "Enter") return;
+                      setGroupData({ ...groupData, name: e.target.value });
+                    }}
+                    ref={nameRef}
+                  />
+                </MyTextField>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  padding: "1rem",
                 }}
               >
-                Δημιουργια
-              </Button>
-            </Box>
-          </>
+                <Button
+                  variant="contained"
+                  disabled={
+                    groupData.code.trim() === "" || groupData.name.trim() === ""
+                  }
+                  onClick={() => {
+                    dispatch(createGroup(groupData, user.result));
+                    // console.log(codeRef.current.value);
+                    codeRef.current.value = "";
+                    nameRef.current.value = "";
+                  }}
+                >
+                  Δημιουργια
+                </Button>
+              </Box>
+            </>
+          )
         )}
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-          position: "relative",
-          borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-        }}
-      >
+      {!group && (
         <Box
           sx={{
-            position: "absolute",
-            height: "100%",
-            width: "50%",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            left: mode === 0 ? "0" : "50%",
-            cursor: "pointer",
-            transition: "0.2s ease-out",
-          }}
-        ></Box>
-        <div
-          style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            flexGrow: 1,
-            // backgroundColor: "red",
-            cursor: "pointer",
-            padding: "1rem",
-          }}
-          onClick={() => {
-            setMode(0);
+            width: "100%",
+            position: "relative",
+            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
           }}
         >
-          Νέα δημοσίευση
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexGrow: 1,
-            // backgroundColor: "blue",
-            padding: "1rem",
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            setMode(1);
-          }}
-        >
-          Νέα ομάδα
-        </div>
-      </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              height: "100%",
+              width: "50%",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              left: mode === 0 ? "0" : "50%",
+              cursor: "pointer",
+              transition: "0.2s ease-out",
+            }}
+          ></Box>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexGrow: 1,
+              // backgroundColor: "red",
+              cursor: "pointer",
+              padding: "1rem",
+            }}
+            onClick={() => {
+              setMode(0);
+            }}
+          >
+            Νέα δημοσίευση
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexGrow: 1,
+              // backgroundColor: "blue",
+              padding: "1rem",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setMode(1);
+            }}
+          >
+            Νέα ομάδα
+          </div>
+        </Box>
+      )}
     </Card>
   );
 };

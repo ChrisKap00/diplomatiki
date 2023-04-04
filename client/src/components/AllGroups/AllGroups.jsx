@@ -17,7 +17,7 @@ const AllGroups = () => {
       sx={{
         listStyle: "none",
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+        gridTemplateColumns: "repeat(6, minmax(200px, 1fr))",
         gridGap: "1rem",
         marginTop: "1rem",
       }}
