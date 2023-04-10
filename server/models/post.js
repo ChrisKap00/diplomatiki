@@ -21,16 +21,44 @@ const postSchema = mongoose.Schema({
   likes: { type: [String], default: [] },
   comments: {
     type: [
-      {
+      new Schema({
         userName: String,
         userId: String,
         userPfp: String,
         text: String,
         images: [String],
-        file: String,
+        file: {
+          type: new Schema({
+            base64: String,
+            name: String,
+            type: String,
+            size: String,
+          }),
+          required: false,
+        },
         postedAt: Date,
         likes: [String],
-      },
+        replies: [
+          {
+            userName: String,
+            userId: String,
+            userPfp: String,
+            text: String,
+            images: [String],
+            file: {
+              type: new Schema({
+                base64: String,
+                name: String,
+                type: String,
+                size: String,
+              }),
+              required: false,
+            },
+            postedAt: Date,
+            likes: [String],
+          },
+        ],
+      }),
     ],
     default: [],
   },

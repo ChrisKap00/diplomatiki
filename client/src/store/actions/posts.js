@@ -69,3 +69,78 @@ export const deletePost = (id) => async (dispatch) => {
     console.log(error);
   }
 };
+
+export const likePost =
+  ({ userId, postId }) =>
+  async (dispatch) => {
+    dispatch({ type: "START_LOADING_LIKE_POST", payload: postId });
+    try {
+      const { data } = await api.likePost({ userId, postId });
+      if (!data.error) {
+        dispatch({
+          type: "LIKE_POST",
+          payload: { userId: data.userId, postId: data.postId },
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch({ type: "STOP_LOADING_LIKE_POST", payload: postId });
+  };
+
+export const postComment = (commentData) => async (dispatch) => {
+  dispatch({
+    type: "SHOW_TEMP_COMMENT",
+    payload: {
+      comment: {
+        userName: commentData.userName,
+        userId: commentData.userId,
+        userPfp: commentData.userPfp,
+        text: commentData.comment.text,
+        images: commentData.comment.images,
+        file: commentData.comment.file,
+        postedAt: "Posting...",
+        likes: [],
+        replies: [],
+      },
+      postId: commentData.postId,
+    },
+  });
+  try {
+    console.log(commentData);
+    const { data } = await api.postComment(commentData);
+    console.log(data);
+    dispatch({
+      type: "POST_COMMENT",
+      payload: {
+        comment: {
+          userName: commentData.userName,
+          userId: commentData.userId,
+          userPfp: commentData.userPfp,
+          text: commentData.comment.text,
+          images: commentData.comment.images,
+          file: commentData.comment.file,
+          postedAt: data.postedAt,
+          likes: [],
+          replies: [],
+          _id: data.commentId,
+        },
+        postId: commentData.postId,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const likeComment = (params) => async (dispatch) => {
+  dispatch({ type: "START_LOADING_LIKE_COMMENT", payload: params });
+  try {
+    const { data } = await api.likeComment(params);
+    console.log(data);
+    if (!data.error) dispatch({ type: "LIKE_COMMENT", payload: params });
+  } catch (error) {
+    console.log(error);
+  }
+  dispatch({ type: "STOP_LOADING_LIKE_COMMENT", payload: params });
+};

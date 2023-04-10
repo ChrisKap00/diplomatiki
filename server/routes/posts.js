@@ -79,4 +79,78 @@ router.delete("/delete", async (req, res) => {
   }
 });
 
+router.patch("/like", async (req, res) => {
+  console.log(req.query);
+  try {
+    const { userId, postId } = req.query;
+
+    const post = await Post.findById(postId);
+
+    if (post.likes.includes(userId))
+      post.likes = post.likes.filter((id) => id !== userId);
+    else post.likes.push(userId);
+
+    await Post.findByIdAndUpdate(postId, post, { new: true });
+    res.status(200).json({ error: 0, userId, postId });
+  } catch (error) {
+    res.status(500).json({ error: 1 });
+  }
+});
+
+router.post("/comment", async (req, res) => {
+  try {
+    const { userId, userName, userPfp, postId, comment } = req.body;
+    console.log(req.body);
+
+    const post = await Post.findById(postId);
+    const postedAt = new Date();
+    post.comments.push({
+      userName,
+      userId,
+      userPfp,
+      text: comment.text,
+      images: comment.images,
+      file: comment.file,
+      postedAt,
+      likes: [],
+      replies: [],
+    });
+    const updatedPost = await Post.findByIdAndUpdate(postId, post, {
+      new: true,
+    });
+    console.log(updatedPost);
+    res.status(200).json({
+      error: 0,
+      commentId: updatedPost.comments.filter(
+        (comment) => String(comment.postedAt) === String(postedAt)
+      )[0]._id,
+      postedAt,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
+router.patch("/likeComment", async (req, res) => {
+  console.log(req.query);
+  try {
+    const { userId, postId, commentId } = req.query;
+    const post = await Post.findById(postId);
+    for (let comment of post.comments) {
+      if (String(comment._id) === commentId) {
+        comment.likes = comment.likes.includes(userId)
+          ? comment.likes.filter((id) => id !== userId)
+          : [...comment.likes, userId];
+        break;
+      }
+    }
+    await Post.findByIdAndUpdate(postId, post, { new: true });
+    res.status(200).json({ error: 0 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
 export default router;

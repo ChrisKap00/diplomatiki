@@ -29,3 +29,11 @@ export const followGroup = ({
 export const post = (postData) => API.post("/posts/post", postData);
 export const fetchPosts = (params) => API.post(`/posts/fetch`, params);
 export const deletePost = (id) => API.delete(`/posts/delete?postId=${id}`);
+export const likePost = ({ userId, postId }) =>
+  API.patch(`/posts/like?userId=${userId}&postId=${postId}`);
+export const postComment = (commentData) =>
+  API.post(`/posts/comment`, commentData);
+export const likeComment = ({ userId, postId, commentId }) =>
+  API.patch(
+    `/posts/likeComment?userId=${userId}&postId=${postId}&commentId=${commentId}`
+  );

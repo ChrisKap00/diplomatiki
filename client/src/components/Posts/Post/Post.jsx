@@ -20,14 +20,18 @@ import {
   MenuItem,
   Modal,
   Paper,
+  Stack,
 } from "@mui/material";
 import {
+  AttachFile,
   Comment,
   Favorite,
   FavoriteBorder,
   FolderZip,
+  Image,
   InsertDriveFile,
   KeyboardArrowRightRounded,
+  Remove,
 } from "@mui/icons-material";
 import TextareaAutosize from "@mui/base/TextareaAutosize";
 import defaultPfp from "../../../assets/defaultPfp.jpg";
@@ -37,7 +41,13 @@ import { useDispatch, useSelector } from "react-redux";
 
 import CommentComponent from "./Comment/Comment";
 import { Link, useLocation } from "react-router-dom";
-import { deletePost } from "../../../store/actions/posts";
+import {
+  deletePost,
+  likePost,
+  postComment,
+} from "../../../store/actions/posts";
+import ReactImageFileToBase64 from "react-file-image-to-base64";
+import FileBase from "react-file-base64";
 
 const CommentForm = styled("form")(({ theme }) => ({
   position: "relative",
@@ -46,7 +56,6 @@ const CommentForm = styled("form")(({ theme }) => ({
   "&:hover": {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginLeft: "10px",
   width: "100%",
   height: "fit-content",
 }));
@@ -62,9 +71,11 @@ const StyledInputBase = styled(TextareaAutosize)(({ theme }) => ({
   height: "fit-content",
   display: "flex",
   alignItems: "center",
-  padding: theme.spacing(0.5, 2, 0.5, 2),
   wordBreak: "break-word",
-  minWidth: "100%",
+  // minWidth: "100%",
+  width: "100%",
+  padding: 0,
+  // padding: theme.spacing(1.5, 2, 0.5, 2),
 }));
 
 const ExpandMore = styled((props) => {
@@ -79,7 +90,7 @@ const StyledModal = styled(Modal)({
 });
 
 export default function Post({ post }) {
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState({ text: "", images: [], file: null });
   const [expanded, setExpanded] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
@@ -113,20 +124,19 @@ export default function Post({ post }) {
   }, []);
 
   const commentOnPost = () => {
-    console.log(`Commenting: ${comment.trim()}`);
-    setComment("");
-    // dispatch(
-    //   postComment(
-    //     {
-    //       userId: user.result._id,
-    //       userName: user.result.name,
-    //       userOfPost: post.creatorId,
-    //       postId: post._id,
-    //       comment: comment.trim(),
-    //     },
-    //     location.pathname
-    //   )
-    // );
+    setComment({ text: "", images: [], file: null });
+    dispatch(
+      postComment(
+        {
+          userId: user.result._id,
+          userName: `${user.result.firstName} ${user.result.lastName}`,
+          userPfp: user.result.pfp,
+          postId: post._id,
+          comment: { ...comment, text: comment.text.trim() },
+        },
+        location.pathname
+      )
+    );
   };
 
   const handleExpandClick = () => {
@@ -134,17 +144,13 @@ export default function Post({ post }) {
   };
 
   const like = () => {
-    console.log("Liking post");
-    // dispatch(
-    //   likePost(
-    //     {
-    //       liker: user.result._id,
-    //       userId: post.creatorId,
-    //       postId: post._id,
-    //     },
-    //     location.pathname
-    //   )
-    // );
+    // console.log("Liking post");
+    dispatch(
+      likePost({
+        userId: user.result._id,
+        postId: post._id,
+      })
+    );
   };
 
   const isMenuOpen = Boolean(anchorEl);
@@ -317,18 +323,14 @@ export default function Post({ post }) {
           />
         )}
         <CardActions disableSpacing>
-          {/* <IconButton aria-label="add to favorites"> */}
           <Checkbox
             icon={<FavoriteBorder />}
             checkedIcon={<Favorite />}
             onClick={like}
             checked={post.likes.includes(user.result._id)}
+            disabled={post.loadingLike}
           />
-          {/* </IconButton> */}
           <Typography>{post.likes.length}</Typography>
-          {/* <IconButton sx={{ marginLeft: 2 }} aria-label="share">
-          <ShareIcon />
-        </IconButton> */}
           <ExpandMore
             sx={{ marginLeft: 2 }}
             expand={expanded}
@@ -364,39 +366,240 @@ export default function Post({ post }) {
                 sx={{ height: "30px", width: "30px" }}
                 src={defaultPfp}
               ></Avatar>
-              <CommentForm
-              // onSubmit={(e) => {
-              //   // e.preventDefault();
-              //   console.log(e);
-              // }}
+              <Box
+                sx={{
+                  width: "100%",
+                  paddingLeft: "10px",
+                }}
               >
-                <StyledInputBase
-                  disabled={post.loadingPostComment}
-                  onKeyDown={(e) => {
-                    if (e.code === "Enter") {
-                      if (shiftHeld) {
-                        console.log("Shift is held down");
-                      } else {
-                        e.preventDefault();
-                        if (comment.trim() !== "") {
-                          commentOnPost();
-                          e.target.value = "";
+                <CommentForm
+                // onSubmit={(e) => {
+                //   // e.preventDefault();
+                //   console.log(e);
+                // }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0.5rem 1rem"
+                    }}
+                  >
+                    <StyledInputBase
+                      disabled={post.loadingPostComment}
+                      onKeyDown={(e) => {
+                        if (e.code === "Enter") {
+                          if (shiftHeld) {
+                            console.log("Shift is held down");
+                          } else {
+                            e.preventDefault();
+                            if (comment.text.trim() !== "") {
+                              commentOnPost();
+                              e.target.value = "";
+                            }
+                          }
                         }
-                      }
-                    }
-                  }}
-                  onChange={(e) => {
-                    if (e.code === "Enter") return;
-                    // console.log(e.target.value);
-                    setComment(e.target.value);
-                  }}
-                  name="inputName"
-                  placeholder="Γράψτε ένα σχόλιο..."
-                />
-              </CommentForm>
+                      }}
+                      onChange={(e) => {
+                        if (e.code === "Enter") return;
+                        // console.log(e.target.value);
+                        setComment({ ...comment, text: e.target.value });
+                      }}
+                      name="inputName"
+                      placeholder="Γράψτε ένα σχόλιο..."
+                    />
+                  </Box>
+                  <Stack
+                    direction="row"
+                    gap={1}
+                    mt={2}
+                    sx={{ padding: "0.5rem" }}
+                  >
+                    <IconButton component="label">
+                      <Image color="primary" />
+                      <div style={{ display: "none" }}>
+                        <ReactImageFileToBase64
+                          multiple={true}
+                          onCompleted={(data) => {
+                            console.log(data);
+                            setComment({
+                              ...comment,
+                              images: [
+                                ...comment.images,
+                                ...data.map((e) => e.base64_file),
+                              ],
+                            });
+                          }}
+                        />
+                      </div>
+                    </IconButton>
+                    <IconButton component="label">
+                      <AttachFile color="primary" />
+                      <div style={{ display: "none" }}>
+                        <FileBase
+                          multiple={false}
+                          onDone={(data) => {
+                            console.log(data);
+                            setComment({
+                              ...comment,
+                              file: {
+                                base64: data.base64,
+                                name: data.name,
+                                size: data.size,
+                                type: data.type.substring(
+                                  data.type.indexOf("/") + 1
+                                ),
+                              },
+                            });
+                          }}
+                        />
+                      </div>
+                    </IconButton>
+                  </Stack>
+                  <Box sx={{ paddingInline: "1rem", paddingBottom: "0.1rem" }}>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(5, minmax(120px, 1fr))",
+                        gridGap: "1rem",
+                        paddingBlock: comment.images.length > 0 ? "10px" : 0,
+                      }}
+                    >
+                      {comment.images.map((image, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            position: "relative",
+                            marginRight: "20px",
+                            marginBottom: "20px",
+                            width: "120px",
+                          }}
+                        >
+                          <img
+                            src={image}
+                            style={{
+                              width: "120px",
+                              aspectRatio: 1,
+                              objectFit: "cover",
+                              borderRadius: "5px",
+                            }}
+                          ></img>
+                          <button
+                            type="button"
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              right: 0,
+                              transform: "translate(30%, -30%)",
+                              color: "white",
+                              backgroundColor: "red",
+                              borderRadius: "50%",
+                              border: "none",
+                              // display: "flex",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              // height: "20px",
+                              aspectRatio: 1,
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              setComment({
+                                ...comment,
+                                images: comment.images.filter(
+                                  (image2, idx2) => idx2 !== idx
+                                ),
+                              });
+                            }}
+                          >
+                            <Remove sx={{ width: "15px" }} />
+                          </button>
+                        </Box>
+                      ))}
+                    </Box>
+                    {comment.file !== null && (
+                      <Paper
+                        sx={{
+                          // backgroundColor: "rgba(255, 255, 255, 0.08)",
+                          borderRadius: "10px",
+                          padding: "0.5rem 1rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          cursor: "pointer",
+                          position: "relative",
+                          // "&:hover": {
+                          //   backgroundColor: "rgba(255, 255, 255, 0.15)",
+                          // },
+                          marginBottom: "20px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            // backgroundColor: "red",
+                            top: 0,
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            borderRadius: "10px",
+                          }}
+                        ></div>
+                        <button
+                          type="button"
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                            transform: "translate(30%, -30%)",
+                            color: "white",
+                            backgroundColor: "red",
+                            borderRadius: "50%",
+                            border: "none",
+                            // display: "flex",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            // height: "20px",
+                            aspectRatio: 1,
+                            cursor: "pointer",
+                            // zIndex: 100
+                          }}
+                          onClick={() => {
+                            setComment({
+                              ...comment,
+                              file: null,
+                            });
+                          }}
+                        >
+                          <Remove sx={{ width: "15px" }} />
+                        </button>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {comment.file.type === "zip" ? (
+                            <FolderZip />
+                          ) : (
+                            <InsertDriveFile />
+                          )}
+                          <Typography sx={{ marginLeft: "5px" }}>
+                            {comment.file.name}
+                          </Typography>
+                        </Box>
+                        <Typography>{comment.file.size}</Typography>
+                      </Paper>
+                    )}
+                  </Box>
+                </CommentForm>
+              </Box>
             </div>
             {post.comments.map((comment, idx) => (
-              <CommentComponent key={idx} comment={comment} />
+              <CommentComponent key={idx} comment={comment} postId={post._id} />
             ))}
           </CardContent>
         </Collapse>
