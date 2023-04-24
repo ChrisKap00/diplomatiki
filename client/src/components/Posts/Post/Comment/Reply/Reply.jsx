@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import defaultPfp from "../../../../assets/defaultPfp.jpg";
+import defaultPfp from "../../../../../assets/defaultPfp.jpg";
 import moment from "moment";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -40,36 +40,9 @@ import {
   deleteComment,
   likeComment,
   postReply,
-} from "../../../../store/actions/posts";
+} from "../../../../../store/actions/posts";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
 import FileBase from "react-file-base64";
-import Reply from "./Reply/Reply";
-
-const CommentForm = styled("form")(({ theme }) => ({
-  position: "relative",
-  borderRadius: "20px",
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  width: "100%",
-  height: "fit-content",
-}));
-
-const StyledInputBase = styled(TextareaAutosize)(({ theme }) => ({
-  color: "inherit",
-  backgroundColor: "transparent",
-  border: "none",
-  outline: "none",
-  resize: "none",
-  font: "inherit",
-  overflow: "hidden",
-  height: "fit-content",
-  display: "flex",
-  alignItems: "center",
-  wordBreak: "break-word",
-  // minWidth: "100%",
-  width: "100%",
-  padding: 0,
-  // padding: theme.spacing(1.5, 2, 0.5, 2),
-}));
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -77,59 +50,11 @@ const StyledModal = styled(Modal)({
   justifyContent: "center",
 });
 
-const Comment = ({ comment, postId }) => {
+const Reply = ({ reply, postId, commentId }) => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const [repliesOpen, setRepliesOpen] = useState(true);
-
-  const [shiftHeld, setShiftHeld] = useState(false);
-
-  const [reply, setReply] = useState({ text: "", images: [], file: null });
-
-  function downHandler({ key }) {
-    if (key === "Shift") {
-      setShiftHeld(true);
-    }
-  }
-
-  function upHandler({ key }) {
-    if (key === "Shift") {
-      setShiftHeld(false);
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener("keydown", downHandler);
-    window.addEventListener("keyup", upHandler);
-    return () => {
-      window.removeEventListener("keydown", downHandler);
-      window.removeEventListener("keyup", upHandler);
-    };
-  }, []);
-
-  const replyOnComment = () => {
-    setReply({ text: "", images: [], file: null });
-    dispatch(
-      postReply({
-        userId: user.result._id,
-        userName: `${user.result.firstName} ${user.result.lastName}`,
-        userPfp: user.result.pfp,
-        postId: postId,
-        commentId: comment._id,
-        reply: { ...reply, text: reply.text.trim() },
-      })
-    );
-  };
-
-  // const handleMobileMenuOpen = (event) => {
-  //   setMobileMoreAnchorEl(event.currentTarget);
-  // };
-
-  // const handleMobileMenuClose = () => {
-  //   setMobileMoreAnchorEl(null);
-  // };
 
   const isProfileMenuOpen = Boolean(menuAnchorEl);
   const handleMenuOpen = (event) => {
@@ -148,9 +73,9 @@ const Comment = ({ comment, postId }) => {
   const closeDeleteConfirmationModal = () => setOpen(false);
 
   const handleDelete = () => {
-    console.log(`Deleting comment ${comment._id}`);
+    console.log(`Deleting reply ${reply._id}`);
     closeDeleteConfirmationModal();
-    dispatch(deleteComment({ postId, commentId: comment._id }));
+    // dispatch(deleteComment({ postId, commentId, replyId: reply._id }));
   };
 
   const renderMenu = (
@@ -189,7 +114,7 @@ const Comment = ({ comment, postId }) => {
       transformOrigin={{ horizontal: "right", vertical: "top" }}
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
     >
-      {comment.userId === user.result._id && (
+      {reply.userId === user.result._id && (
         <MenuItem onClick={openDeleteConfirmationModal}>Delete</MenuItem>
       )}
     </Menu>
@@ -199,26 +124,22 @@ const Comment = ({ comment, postId }) => {
     <>
       <div
         style={{
-          width: "100%",
           display: "flex",
           marginTop: "20px",
           opacity:
-            comment.postedAt === "Posting..." ||
-            comment.postedAt === "Deleting..."
+            reply.postedAt === "Posting..." || reply.postedAt === "Deleting..."
               ? "50%"
               : "100%",
-          // backgroundColor: "lightcoral"
         }}
       >
         <Link
-          to={`/profile/${comment.userId}`}
+          to={`/profile/${reply.userId}`}
           style={{
             pointerEvents:
-              comment.postedAt === "Posting..." ||
-              comment.postedAt === "Deleting..."
+              reply.postedAt === "Posting..." ||
+              reply.postedAt === "Deleting..."
                 ? "none"
                 : "auto",
-            height: "fit-content",
           }}
         >
           <Avatar
@@ -226,10 +147,10 @@ const Comment = ({ comment, postId }) => {
             src={defaultPfp}
           ></Avatar>
         </Link>
-        <Box sx={{ width: "calc(100% - 30px)", paddingLeft: "10px" }}>
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+        <Box sx={{ width: "100%", paddingLeft: "10px" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Box sx={{ width: "100%" }}>
-              {!comment.deleted ? (
+              {!reply.deleted ? (
                 <Card
                   sx={{
                     width: "fit-content",
@@ -240,25 +161,25 @@ const Comment = ({ comment, postId }) => {
                   }}
                 >
                   <Link
-                    to={`/profile/${comment.userId}`}
+                    to={`/profile/${reply.userId}`}
                     style={{
                       color: "inherit",
                       textDecoration: "none",
                       width: "fit-content",
                       cursor: "pointer",
                       pointerEvents:
-                        comment.postedAt === "Posting..." ||
-                        comment.postedAt === "Deleting..."
+                        reply.postedAt === "Posting..." ||
+                        reply.postedAt === "Deleting..."
                           ? "none"
                           : "auto",
                     }}
                   >
                     <label style={{ fontWeight: "bold", cursor: "pointer" }}>
-                      {comment.userName}
+                      {reply.userName}
                     </label>
                     {/* </Typography> */}
                   </Link>
-                  <Typography>{comment.text}</Typography>
+                  <Typography>{reply.text}</Typography>
                 </Card>
               ) : (
                 <Box
@@ -269,21 +190,21 @@ const Comment = ({ comment, postId }) => {
                   }}
                 >
                   <Link
-                    to={`/profile/${comment.userId}`}
+                    to={`/profile/${reply.userId}`}
                     style={{
                       color: "inherit",
                       textDecoration: "none",
                       width: "fit-content",
                       cursor: "pointer",
                       pointerEvents:
-                        comment.postedAt === "Posting..." ||
-                        comment.postedAt === "Deleting..."
+                        reply.postedAt === "Posting..." ||
+                        reply.postedAt === "Deleting..."
                           ? "none"
                           : "auto",
                     }}
                   >
                     <label style={{ fontWeight: "bold", cursor: "pointer" }}>
-                      {comment.userName}
+                      {reply.userName}
                     </label>
                   </Link>
                   <Card
@@ -298,11 +219,11 @@ const Comment = ({ comment, postId }) => {
                     }}
                     elevation={0}
                   >
-                    <Typography>Το σχόλιο έχει διαγραφεί.</Typography>
+                    <Typography>Η απάντηση έχει διαγραφεί.</Typography>
                   </Card>
                 </Box>
               )}
-              {comment?.images.length > 0 && !comment.deleted && (
+              {reply?.images.length > 0 && !reply.deleted && (
                 <Box
                   sx={{
                     width: "60%",
@@ -313,7 +234,7 @@ const Comment = ({ comment, postId }) => {
                   }}
                 >
                   <img
-                    src={comment.images[0]}
+                    src={reply.images[0]}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -321,7 +242,7 @@ const Comment = ({ comment, postId }) => {
                       cursor: "pointer",
                     }}
                   ></img>
-                  {comment.images.length > 1 && (
+                  {reply.images.length > 1 && (
                     <Box
                       sx={{
                         position: "absolute",
@@ -337,8 +258,8 @@ const Comment = ({ comment, postId }) => {
                         borderRadius: "20px",
                         cursor: "pointer",
                         pointerEvents:
-                          comment.postedAt === "Posting..." ||
-                          comment.postedAt === "Deleting..."
+                          reply.postedAt === "Posting..." ||
+                          reply.postedAt === "Deleting..."
                             ? "none"
                             : "auto",
                       }}
@@ -357,14 +278,14 @@ const Comment = ({ comment, postId }) => {
                         <Typography
                           sx={{ fontSize: "2rem", fontWeight: "600" }}
                         >
-                          {comment.images.length}
+                          {reply.images.length}
                         </Typography>
                       </Box>
                     </Box>
                   )}
                 </Box>
               )}
-              {comment.file !== null && !comment.deleted && (
+              {reply.file !== null && !reply.deleted && (
                 <Box
                   sx={{
                     backgroundColor: "rgba(255, 255, 255, 0.08)",
@@ -375,15 +296,15 @@ const Comment = ({ comment, postId }) => {
                     justifyContent: "space-between",
                     cursor: "pointer",
                     pointerEvents:
-                      comment.postedAt === "Posting..." ||
-                      comment.postedAt === "Deleting..."
+                      reply.postedAt === "Posting..." ||
+                      reply.postedAt === "Deleting..."
                         ? "none"
                         : "auto",
                     position: "relative",
                     "&:hover": {
                       backgroundColor:
-                        comment.postedAt === "Posting..." ||
-                        comment.postedAt === "Deleting..."
+                        reply.postedAt === "Posting..." ||
+                        reply.postedAt === "Deleting..."
                           ? "rgba(255, 255, 255, 0.08"
                           : "rgba(255, 255, 255, 0.15)",
                     },
@@ -402,8 +323,8 @@ const Comment = ({ comment, postId }) => {
                     }}
                     onClick={() => {
                       const anchor = document.createElement("a");
-                      anchor.download = comment.file.name;
-                      anchor.href = comment.file.base64;
+                      anchor.download = reply.file.name;
+                      anchor.href = reply.file.base64;
                       anchor.click();
                     }}
                   ></div>
@@ -414,16 +335,16 @@ const Comment = ({ comment, postId }) => {
                       justifyContent: "center",
                     }}
                   >
-                    {comment.file.type === "zip" ? (
+                    {reply.file.type === "zip" ? (
                       <FolderZip />
                     ) : (
                       <InsertDriveFile />
                     )}
                     <Typography sx={{ marginLeft: "5px" }}>
-                      {comment.file.name}
+                      {reply.file.name}
                     </Typography>
                   </Box>
-                  <Typography>{comment.file.size}</Typography>
+                  <Typography>{reply.file.size}</Typography>
                 </Box>
               )}
             </Box>
@@ -439,37 +360,30 @@ const Comment = ({ comment, postId }) => {
                 icon={<FavoriteBorder />}
                 checkedIcon={<Favorite />}
                 onClick={() => {
-                  dispatch(
-                    likeComment({
-                      userId: user.result._id,
-                      postId,
-                      commentId: comment._id,
-                    })
-                  );
+                  //   dispatch(
+                  //     likeComment({
+                  //       userId: user.result._id,
+                  //       postId,
+                  //       commentId: comment._id,
+                  //     })
+                  //   );
                 }}
-                checked={comment.likes.includes(user.result._id)}
+                checked={reply.likes.includes(user.result._id)}
                 disabled={
-                  comment.loadingLike ||
-                  comment.postedAt === "Posting..." ||
-                  comment.postedAt === "Deleting..."
+                  reply.loadingLike ||
+                  reply.postedAt === "Posting..." ||
+                  reply.postedAt === "Deleting..."
                 }
               />
-              <Typography>{comment.likes.length}</Typography>
+              <Typography>{reply.likes.length}</Typography>
             </Box>
           </Box>
           <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              paddingTop: "5px",
-              paddingBottom: "5px",
-              // backgroundColor: "purple",
-              width: "fit-content",
-            }}
+            sx={{ display: "flex", alignItems: "center", paddingTop: "5px" }}
           >
-            <div
+            {/* <div
               onClick={() => {
-                setRepliesOpen(!repliesOpen);
+                // setRepliesOpen(!repliesOpen);
               }}
             >
               <Typography
@@ -487,26 +401,26 @@ const Comment = ({ comment, postId }) => {
               >
                 Απαντήστε
               </Typography>
-            </div>
-            <Typography sx={{ opacity: "50%", marginRight: "5px" }}>
+            </div> */}
+            {/* <Typography sx={{ opacity: "50%", marginRight: "5px" }}>
               ·
-            </Typography>
+            </Typography> */}
             <Typography sx={{ opacity: "50%" }}>
-              {comment.postedAt === "Posting..."
+              {reply.postedAt === "Posting..."
                 ? "Posting..."
-                : comment.postedAt === "Deleting..."
+                : reply.postedAt === "Deleting..."
                 ? "Deleting..."
-                : moment(comment.postedAt).fromNow()}
+                : moment(reply.postedAt).fromNow()}
             </Typography>
             <div
               style={{
-                display: comment.userId === user?.result._id ? "flex" : "none",
+                display: reply.userId === user?.result._id ? "flex" : "none",
                 alignItems: "center",
                 paddingLeft: "10px",
                 cursor: "pointer",
                 pointerEvents:
-                  comment.postedAt === "Posting..." ||
-                  comment.postedAt === "Deleting..."
+                  reply.postedAt === "Posting..." ||
+                  reply.postedAt === "Deleting..."
                     ? "none"
                     : "auto",
               }}
@@ -523,7 +437,7 @@ const Comment = ({ comment, postId }) => {
             </div>
             {renderMenu}
           </Box>
-          <Collapse in={repliesOpen} unmountOnExit sx={{ width: "100%" }}>
+          {/* <Collapse in={repliesOpen} unmountOnExit>
             <div
               style={{
                 display: "flex",
@@ -537,7 +451,7 @@ const Comment = ({ comment, postId }) => {
               ></Avatar>
               <Box
                 sx={{
-                  width: "calc(100% - 30px)",
+                  width: "100%",
                   paddingLeft: "10px",
                 }}
               >
@@ -743,7 +657,7 @@ const Comment = ({ comment, postId }) => {
                             right: 0,
                             transform: "translate(30%, -30%)",
                             color: "white",
-                            // backgroundColor: "red",
+                            backgroundColor: "red",
                             borderRadius: "50%",
                             border: "none",
                             // display: "flex",
@@ -795,7 +709,7 @@ const Comment = ({ comment, postId }) => {
                 commentId={comment._id}
               />
             ))}
-          </Collapse>
+          </Collapse> */}
         </Box>
       </div>
       <StyledModal
@@ -814,11 +728,11 @@ const Comment = ({ comment, postId }) => {
           borderRadius={5}
         >
           <Typography variant="h6" color="gray" textAlign="center">
-            Διαγραφή σχολίου
+            Διαγραφή απάντησης
           </Typography>
           <br></br>
           <Typography fontWeight={500} variant="span">
-            Είστε σίγουροι ότι θέλετε να διαγράψετε το σχόλιο;
+            Είστε σίγουροι ότι θέλετε να διαγράψετε την απάντηση;
           </Typography>
           <br></br>
           <br></br>
@@ -837,4 +751,4 @@ const Comment = ({ comment, postId }) => {
   );
 };
 
-export default Comment;
+export default Reply;

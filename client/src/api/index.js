@@ -33,7 +33,10 @@ export const likePost = ({ userId, postId }) =>
   API.patch(`/posts/like?userId=${userId}&postId=${postId}`);
 export const postComment = (commentData) =>
   API.post(`/posts/comment`, commentData);
+export const deleteComment = ({ postId, commentId }) =>
+  API.patch(`/posts/deleteComment?postId=${postId}&commentId=${commentId}`);
 export const likeComment = ({ userId, postId, commentId }) =>
   API.patch(
     `/posts/likeComment?userId=${userId}&postId=${postId}&commentId=${commentId}`
   );
+export const postReply = (replyData) => API.post("/posts/reply", replyData);

@@ -132,6 +132,32 @@ router.post("/comment", async (req, res) => {
   }
 });
 
+router.patch("/deleteComment", async (req, res) => {
+  console.log(req.query);
+  const { postId, commentId } = req.query;
+  try {
+    const post = await Post.findById(postId);
+    let postedAt;
+    for (let comment of post.comments) {
+      if (String(comment._id) === commentId) {
+        comment.deleted = true;
+        comment.text = "";
+        comment.images = [];
+        comment.file = null;
+        postedAt = comment.postedAt;
+        // comment.likes = comment.likes.includes(userId)
+        //   ? comment.likes.filter((id) => id !== userId)
+        //   : [...comment.likes, userId];
+        break;
+      }
+    }
+    await Post.findByIdAndUpdate(postId, post, { new: true });
+    res.status(200).json({ error: 0, postedAt });
+  } catch (error) {
+    res.status(500).json({ error: 1, postId, commentId });
+  }
+});
+
 router.patch("/likeComment", async (req, res) => {
   console.log(req.query);
   try {
@@ -147,6 +173,44 @@ router.patch("/likeComment", async (req, res) => {
     }
     await Post.findByIdAndUpdate(postId, post, { new: true });
     res.status(200).json({ error: 0 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
+router.post("/reply", async (req, res) => {
+  try {
+    const { userId, userName, userPfp, postId, commentId, reply } = req.body;
+    const post = await Post.findById(postId);
+    const postedAt = new Date();
+    for (let comment of post.comments) {
+      if (String(comment._id) === commentId) {
+        comment.replies.push({
+          userName,
+          userId,
+          userPfp,
+          text: reply.text,
+          images: reply.images,
+          file: reply.file,
+          postedAt,
+          likes: [],
+          replies: [],
+        });
+        break;
+      }
+    }
+    const updatedPost = await Post.findByIdAndUpdate(postId, post, {
+      new: true,
+    });
+    res.status(200).json({
+      error: 0,
+      replyId: updatedPost.comments
+        .filter((comment) => String(comment._id) === commentId)[0]
+        .replies.filter(
+          (reply) => String(reply.postedAt) === String(postedAt)
+        )[0]._id,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });

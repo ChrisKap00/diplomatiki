@@ -31,6 +31,7 @@ const Posts = () => {
         flexDirection: "column",
         alignItems: "center",
         // backgroundColor: "blue",
+        width: "100%",
       }}
       flex={5}
       p={2}

@@ -14,7 +14,11 @@ const Home = () => {
   }, []);
 
   return (
-    <Stack direction="row" justifyContent="space-between">
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      sx={{ width: "100%" }}
+    >
       <MyGroups />
       <Posts />
       <Messages />

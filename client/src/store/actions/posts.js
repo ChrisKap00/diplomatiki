@@ -100,6 +100,7 @@ export const postComment = (commentData) => async (dispatch) => {
         images: commentData.comment.images,
         file: commentData.comment.file,
         postedAt: "Posting...",
+        deleted: false,
         likes: [],
         replies: [],
       },
@@ -110,24 +111,46 @@ export const postComment = (commentData) => async (dispatch) => {
     console.log(commentData);
     const { data } = await api.postComment(commentData);
     console.log(data);
-    dispatch({
-      type: "POST_COMMENT",
-      payload: {
-        comment: {
-          userName: commentData.userName,
-          userId: commentData.userId,
-          userPfp: commentData.userPfp,
-          text: commentData.comment.text,
-          images: commentData.comment.images,
-          file: commentData.comment.file,
-          postedAt: data.postedAt,
-          likes: [],
-          replies: [],
-          _id: data.commentId,
+    if (!data.error) {
+      dispatch({
+        type: "POST_COMMENT",
+        payload: {
+          comment: {
+            userName: commentData.userName,
+            userId: commentData.userId,
+            userPfp: commentData.userPfp,
+            text: commentData.comment.text,
+            images: commentData.comment.images,
+            file: commentData.comment.file,
+            postedAt: data.postedAt,
+            likes: [],
+            replies: [],
+            _id: data.commentId,
+          },
+          postId: commentData.postId,
         },
-        postId: commentData.postId,
-      },
-    });
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteComment = (params) => async (dispatch) => {
+  dispatch({ type: "SHOW_TEMP_DEL_COMMENT", payload: params });
+  try {
+    const { data } = await api.deleteComment(params);
+    console.log(data);
+    if (!data.error) {
+      dispatch({
+        type: "DELETE_COMMENT",
+        payload: {
+          postId: params.postId,
+          commentId: params.commentId,
+          postedAt: data.postedAt,
+        },
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -143,4 +166,53 @@ export const likeComment = (params) => async (dispatch) => {
     console.log(error);
   }
   dispatch({ type: "STOP_LOADING_LIKE_COMMENT", payload: params });
+};
+
+export const postReply = (replyData) => async (dispatch) => {
+  dispatch({
+    type: "SHOW_TEMP_REPLY",
+    payload: {
+      reply: {
+        userName: replyData.userName,
+        userId: replyData.userId,
+        userPfp: replyData.userPfp,
+        text: replyData.reply.text,
+        images: replyData.reply.images,
+        file: replyData.reply.file,
+        postedAt: "Posting...",
+        deleted: false,
+        likes: [],
+        replies: [],
+      },
+      postId: replyData.postId,
+      commentId: replyData.commentId,
+    },
+  });
+  try {
+    const { data } = await api.postReply(replyData);
+    console.log(data);
+    if (!data.error) {
+      dispatch({
+        type: "POST_REPLY",
+        payload: {
+          reply: {
+            userName: replyData.userName,
+            userId: replyData.userId,
+            userPfp: replyData.userPfp,
+            text: replyData.reply.text,
+            images: replyData.reply.images,
+            file: replyData.reply.file,
+            postedAt: data.postedAt,
+            likes: [],
+            replies: [],
+            _id: data.replyId,
+          },
+          postId: replyData.postId,
+          commentId: replyData.commentId,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };

@@ -40,6 +40,7 @@ const Group = () => {
         sx={{
           padding: "2rem 1rem",
           borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
+          // backgroundColor: "yellow",
         }}
       >
         <Typography variant="h4" sx={{ fontWeight: "600" }}>
@@ -57,7 +58,7 @@ const Group = () => {
             xl: "0.5rem 10rem",
           },
           // paddingBottom: 0,
-          // backgroundColor: "red",
+          // backgroundColor: "blue",
         }}
       >
         <Card sx={{ padding: "1rem" }}>hi</Card>
@@ -70,10 +71,18 @@ const Group = () => {
             lg: "1rem 2rem",
             xl: "1rem 10rem",
           },
+          // backgroundColor: "red",
         }}
       >
         <Stack direction="row" justifyContent="space-between">
-          <Box flex={2.5}>
+          <Box
+            flex={2.5}
+            sx={{
+              paddingRight: { xs: 0, lg: "20px" },
+              // backgroundColor: "lightgreen",
+              width: "100%",
+            }}
+          >
             <Create group={group} />
             {isLoading ? (
               <>

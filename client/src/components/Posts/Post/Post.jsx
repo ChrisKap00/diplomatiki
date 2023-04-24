@@ -53,9 +53,6 @@ const CommentForm = styled("form")(({ theme }) => ({
   position: "relative",
   borderRadius: "20px",
   backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
   width: "100%",
   height: "fit-content",
 }));
@@ -202,7 +199,7 @@ export default function Post({ post }) {
         sx={{
           width:
             location.pathname.split("/")[1] === "group"
-              ? { xs: "100%", lg: "97%" }
+              ? "100%"
               : { xs: "100%", xl: "90%" },
           marginBottom: "20px",
           opacity:
@@ -342,7 +339,12 @@ export default function Post({ post }) {
           </ExpandMore>
           <Typography>{post.comments.length}</Typography>
         </CardActions>
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Collapse
+          in={expanded}
+          timeout="auto"
+          unmountOnExit
+          sx={{ width: "100%" }}
+        >
           <hr
             style={{
               width: "95%",
@@ -359,6 +361,7 @@ export default function Post({ post }) {
               style={{
                 display: "flex",
                 marginBottom: "20px",
+                width: "100%",
                 // backgroundColor: "red",
               }}
             >
@@ -368,22 +371,29 @@ export default function Post({ post }) {
               ></Avatar>
               <Box
                 sx={{
-                  width: "100%",
+                  width: "calc(100% - 30px)",
                   paddingLeft: "10px",
                 }}
               >
                 <CommentForm
-                // onSubmit={(e) => {
-                //   // e.preventDefault();
-                //   console.log(e);
-                // }}
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: post.loadingPostComment
+                        ? "rgba(255, 255, 255, 0.15)"
+                        : "rgba(255, 255, 255, 0.25)",
+                    },
+                  }}
+                  // onSubmit={(e) => {
+                  //   // e.preventDefault();
+                  //   console.log(e);
+                  // }}
                 >
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: "0.5rem 1rem"
+                      padding: "0.5rem 1rem",
                     }}
                   >
                     <StyledInputBase
@@ -414,7 +424,10 @@ export default function Post({ post }) {
                     direction="row"
                     gap={1}
                     mt={2}
-                    sx={{ padding: "0.5rem" }}
+                    sx={{
+                      padding: "0.5rem",
+                      pointerEvents: post.loadingPostComment ? "none" : "auto",
+                    }}
                   >
                     <IconButton component="label">
                       <Image color="primary" />
@@ -598,9 +611,21 @@ export default function Post({ post }) {
                 </CommentForm>
               </Box>
             </div>
-            {post.comments.map((comment, idx) => (
-              <CommentComponent key={idx} comment={comment} postId={post._id} />
-            ))}
+            <div
+              style={{
+                width: "100%",
+                // overflow: "auto",
+                // backgroundColor: "darkred",
+              }}
+            >
+              {post.comments.map((comment, idx) => (
+                <CommentComponent
+                  key={idx}
+                  comment={comment}
+                  postId={post._id}
+                />
+              ))}
+            </div>
           </CardContent>
         </Collapse>
       </Card>

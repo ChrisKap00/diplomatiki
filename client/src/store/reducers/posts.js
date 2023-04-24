@@ -70,7 +70,7 @@ export default (
           post._id === action.payload.postId
             ? {
                 ...post,
-                comments: [action.payload.comment, ...post.comments],
+                comments: [...post.comments, action.payload.comment],
                 loadingPostComment: true,
               }
             : post
@@ -86,6 +86,47 @@ export default (
                 comments: post.comments.map((comment) =>
                   comment.postedAt === "Posting..."
                     ? action.payload.comment
+                    : comment
+                ),
+                loadingPostComment: false,
+              }
+            : post
+        ),
+      };
+    case "SHOW_TEMP_DEL_COMMENT":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? { ...comment, postedAt: "Deleting..." }
+                    : comment
+                ),
+                loadingPostComment: true,
+              }
+            : post
+        ),
+      };
+    case "DELETE_COMMENT":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        deleted: true,
+                        text: "",
+                        images: [],
+                        file: null,
+                        postedAt: action.payload.postedAt,
+                      }
                     : comment
                 ),
                 loadingPostComment: false,
@@ -141,6 +182,48 @@ export default (
                               (id) => id !== action.payload.userId
                             )
                           : [...comment.likes, action.payload.userId],
+                      }
+                    : comment
+                ),
+              }
+            : post
+        ),
+      };
+    case "SHOW_TEMP_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: [...comment.replies, action.payload.reply],
+                      }
+                    : comment
+                ),
+              }
+            : post
+        ),
+      };
+    case "POST_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply.postedAt === "Posting..."
+                            ? action.payload.reply
+                            : reply
+                        ),
                       }
                     : comment
                 ),

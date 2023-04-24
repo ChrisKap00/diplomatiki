@@ -37,9 +37,10 @@ const postSchema = mongoose.Schema({
           required: false,
         },
         postedAt: Date,
+        deleted: { type: Boolean, default: false },
         likes: [String],
         replies: [
-          {
+          new Schema({
             userName: String,
             userId: String,
             userPfp: String,
@@ -56,7 +57,8 @@ const postSchema = mongoose.Schema({
             },
             postedAt: Date,
             likes: [String],
-          },
+            delete: { type: Boolean, default: false },
+          }),
         ],
       }),
     ],

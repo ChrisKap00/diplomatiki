@@ -9,7 +9,7 @@ const LoadingPost = () => {
       sx={{
         width:
           location.pathname.split("/")[1] === "group"
-            ? { xs: "100%", lg: "97%" }
+            ? "100%"
             : { xs: "100%", xl: "90%" },
         marginBottom: "20px",
       }}
