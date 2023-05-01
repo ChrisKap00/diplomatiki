@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Box, Button, Card, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, InputBase, Stack, Typography } from "@mui/material";
+import { styled, alpha } from "@mui/material/styles";
+import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroups } from "../../store/actions/groups";
 import { fetchPosts } from "../../store/actions/posts";
@@ -8,6 +10,41 @@ import LoadingPost from "../LoadingPost/LoadingPost";
 import Post from "../Posts/Post/Post";
 import Member from "./Member/Member";
 import Create from "../Posts/Create/Create";
+
+const Search = styled("form")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.spacing(20),
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(3),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  padding: theme.spacing(0.5, 1, 0.5, 0),
+  // vertical padding + font size from searchIcon
+  paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+  transition: theme.transitions.create("width"),
+  width: "100%",
+}));
 
 const Group = () => {
   const location = useLocation();
@@ -18,6 +55,7 @@ const Group = () => {
     groups.filter((e) => e._id === location.pathname.split("/")[2])[0]
   );
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     dispatch(fetchGroups());
@@ -61,7 +99,25 @@ const Group = () => {
           // backgroundColor: "blue",
         }}
       >
-        <Card sx={{ padding: "1rem" }}>hi</Card>
+        <Card sx={{ padding: "1rem 0" }}>
+          <Search
+            onSubmit={(e) => {
+              e.preventDefault();
+              setPage(0);
+              dispatch(fetchPosts({ groupId: group._id, page, search }));
+              setSearch("");
+            }}
+            onChange={(e) => setSearch(e.target.value)}
+          >
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Αναζητήστε δημιοσιεύσεις..."
+              inputProps={{ "aria-label": "search" }}
+            />
+          </Search>
+        </Card>
       </Box>
       <Box
         sx={{

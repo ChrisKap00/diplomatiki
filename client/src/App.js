@@ -34,6 +34,11 @@ function App() {
     // console.log(location.search.split("=")[1]);
   }, [location]);
 
+  useEffect(() => {
+    if (!user) return;
+    localStorage.setItem("user", JSON.stringify(user));
+  }, [user]);
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />

@@ -58,7 +58,7 @@ const StyledInputBase = styled(TextareaAutosize)(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(0.5, 2, 0.5, 2),
   wordBreak: "break-word",
-  // minWidth: "100%",
+  minWidth: "100%",
 }));
 
 const Create = ({ group }) => {

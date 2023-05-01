@@ -67,6 +67,7 @@ router.patch("/follow", async (req, res) => {
     console.log(req.query);
     const { userId, firstName, lastName, pfp, groupId } = req.query;
     const group = await Group.findById(groupId);
+    const user = await User.findById(userId);
     if (!group) {
       return res.status(500).json({
         error: 1,
@@ -76,14 +77,19 @@ router.patch("/follow", async (req, res) => {
     let type;
     if (group.users.findIndex((e) => e._id === userId) > -1) {
       group.users = group.users.filter((e) => e._id !== userId);
+      user.groups = user.groups.filter((e) => e !== groupId);
       type = "rmv";
     } else {
       group.users.push({ _id: userId, firstName, lastName, pfp });
+      user.groups.push(groupId);
       type = "add";
     }
-    const updatedGroup = await Group.findByIdAndUpdate(groupId, group, {
+
+    await Group.findByIdAndUpdate(groupId, group, {
       new: true,
     });
+    await User.findByIdAndUpdate(userId, user, { new: true });
+
     return res.status(200).json({
       error: 0,
       type,

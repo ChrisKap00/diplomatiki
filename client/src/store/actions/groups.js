@@ -16,6 +16,7 @@ export const createGroup = (groupData, user) => async (dispatch) => {
     console.log(data);
     if (!data.error) {
       dispatch({ type: "CREATE_GROUP", payload: data.result });
+      dispatch({ type: "ADD_GROUP_TO_USER", payload: data.result._id });
     }
   } catch (error) {
     console.log(error);
@@ -54,6 +55,9 @@ export const followGroup = (user, groupId) => async (dispatch) => {
           pfp: data.pfp,
         },
       });
+      if (data.type === "add")
+        dispatch({ type: "ADD_GROUP_TO_USER", payload: data.groupId });
+      else dispatch({ type: "REMOVE_GROUP_FROM_USER", payload: data.groupId });
     }
   } catch (error) {
     console.log(error);

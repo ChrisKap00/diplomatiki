@@ -38,6 +38,8 @@ import defaultPfp from "../../../assets/defaultPfp.jpg";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 // import { deletePost, likePost, postComment } from "../../store/actions/posts";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import CommentComponent from "./Comment/Comment";
 import { Link, useLocation } from "react-router-dom";
@@ -48,6 +50,7 @@ import {
 } from "../../../store/actions/posts";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
 import FileBase from "react-file-base64";
+import ImageCarousel from "../../ImageCarousel/ImageCarousel";
 
 const CommentForm = styled("form")(({ theme }) => ({
   position: "relative",
@@ -91,6 +94,7 @@ export default function Post({ post }) {
   const [expanded, setExpanded] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
+  const [images, setImages] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -119,6 +123,14 @@ export default function Post({ post }) {
       window.removeEventListener("keyup", upHandler);
     };
   }, []);
+
+  useEffect(() => {
+    console.log(images);
+    if (!images) document.body.style.overflowY = "auto";
+    else {
+      document.body.style.overflowY = "hidden";
+    }
+  }, [images]);
 
   const commentOnPost = () => {
     setComment({ text: "", images: [], file: null });
@@ -195,6 +207,7 @@ export default function Post({ post }) {
 
   return (
     <>
+      {images && <ImageCarousel images={images} setImages={setImages} />}
       <Card
         sx={{
           width:
@@ -311,13 +324,84 @@ export default function Post({ post }) {
           )}
         </CardContent>
         {post?.images.length > 0 && (
-          <CardMedia
-            component="img"
-            // height="50%"
-            image={post.images[0]}
-            sx={{ objectFit: "revert" }}
-            alt="Paella dish"
-          />
+          <Box sx={{ position: "relative" }}>
+            <img
+              src={post.images[0]}
+              style={{ cursor: "pointer", width: "100%" }}
+            ></img>
+            {post.images.length > 1 && (
+              <div
+                style={{
+                  position: "absolute",
+                  backgroundColor: "rgba(0, 0, 0, 0.1)",
+                  backdropFilter: "blur(5px)",
+                  top: "0",
+                  left: "0",
+                  right: "-1px",
+                  bottom: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  pointerEvents:
+                    post.postedAt === "Posting..." ||
+                    post.postedAt === "Deleting..."
+                      ? "none"
+                      : "auto",
+                }}
+                onClick={() => {
+                  setImages(post.images);
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    backgroundColor: "rgba(20, 20, 20, 0.8)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "2rem", fontWeight: "600" }}>
+                    {post.images.length}
+                  </Typography>
+                </Box>
+              </div>
+            )}
+          </Box>
+          // <CardMedia
+          //   component="img"
+          //   // height="50%"
+          //   image={post.images[0]}
+          //   sx={{ objectFit: "revert" }}
+          //   alt="Paella dish"
+          // />
+          // <Box sx={{ width: "100%" }}>
+          //   <Carousel
+          //     axis="horizontal"
+          //     // showArrows={false}
+          //     emulateTouch={true}
+          //     showIndicators={false}
+          //     showThumbs={false}
+          //   >
+          //     {post.images.map((image, index) => (
+          //       <div
+          //         key={index}
+          //         style={{
+          //           // backgroundColor: "red",
+          //           height: "100%",
+          //           width: "100%",
+          //           display: "flex",
+          //           alignItems: "center",
+          //         }}
+          //       >
+          //         <img src={image} style={{ width: "100%" }}></img>
+          //       </div>
+          //     ))}
+          //   </Carousel>
+          // </Box>
         )}
         <CardActions disableSpacing>
           <Checkbox

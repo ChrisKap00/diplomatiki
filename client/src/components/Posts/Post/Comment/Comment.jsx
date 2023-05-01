@@ -44,6 +44,7 @@ import {
 import ReactImageFileToBase64 from "react-file-image-to-base64";
 import FileBase from "react-file-base64";
 import Reply from "./Reply/Reply";
+import ImageCarousel from "../../../ImageCarousel/ImageCarousel";
 
 const CommentForm = styled("form")(({ theme }) => ({
   position: "relative",
@@ -83,6 +84,7 @@ const Comment = ({ comment, postId }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const [repliesOpen, setRepliesOpen] = useState(true);
+  const [images, setImages] = useState(null);
 
   const [shiftHeld, setShiftHeld] = useState(false);
 
@@ -197,6 +199,7 @@ const Comment = ({ comment, postId }) => {
 
   return (
     <>
+      {images && <ImageCarousel images={images} setImages={setImages} />}
       <div
         style={{
           width: "100%",
@@ -326,7 +329,7 @@ const Comment = ({ comment, postId }) => {
                       sx={{
                         position: "absolute",
                         backgroundColor: "rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(8px)",
+                        backdropFilter: "blur(5px)",
                         top: "0",
                         left: "0",
                         right: "-1px",
@@ -342,11 +345,15 @@ const Comment = ({ comment, postId }) => {
                             ? "none"
                             : "auto",
                       }}
+                      component="div"
+                      onClick={() => {
+                        setImages(comment.images);
+                      }}
                     >
                       <Box
                         sx={{
-                          width: "100px",
-                          height: "100px",
+                          width: "60px",
+                          height: "60px",
                           borderRadius: "50%",
                           backgroundColor: "rgba(20, 20, 20, 0.8)",
                           display: "flex",
@@ -355,7 +362,7 @@ const Comment = ({ comment, postId }) => {
                         }}
                       >
                         <Typography
-                          sx={{ fontSize: "2rem", fontWeight: "600" }}
+                          sx={{ fontSize: "1.7rem", fontWeight: "600" }}
                         >
                           {comment.images.length}
                         </Typography>
@@ -500,7 +507,10 @@ const Comment = ({ comment, postId }) => {
             </Typography>
             <div
               style={{
-                display: comment.userId === user?.result._id ? "flex" : "none",
+                display:
+                  comment.userId === user?.result._id && !comment.deleted
+                    ? "flex"
+                    : "none",
                 alignItems: "center",
                 paddingLeft: "10px",
                 cursor: "pointer",
@@ -551,10 +561,6 @@ const Comment = ({ comment, postId }) => {
                           : "rgba(255, 255, 255, 0.25)",
                     },
                   }}
-                  // onSubmit={(e) => {
-                  //   // e.preventDefault();
-                  //   console.log(e);
-                  // }}
                 >
                   <Box
                     sx={{
@@ -646,34 +652,101 @@ const Comment = ({ comment, postId }) => {
                       </div>
                     </IconButton>
                   </Stack>
-                  <Box sx={{ paddingInline: "1rem", paddingBottom: "0.1rem" }}>
+                  {reply.images.length > 0 && (
                     <Box
                       sx={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(5, minmax(120px, 1fr))",
-                        gridGap: "1rem",
-                        paddingBlock: comment.images.length > 0 ? "10px" : 0,
+                        paddingInline: "1rem",
+                        paddingBottom: "0.1rem",
                       }}
                     >
-                      {reply.images.map((image, idx) => (
-                        <Box
-                          key={idx}
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(5, minmax(120px, 1fr))",
+                          gridGap: "1rem",
+                          paddingBlock: comment.images.length > 0 ? "10px" : 0,
+                        }}
+                      >
+                        {reply.images.map((image, idx) => (
+                          <Box
+                            key={idx}
+                            sx={{
+                              position: "relative",
+                              marginRight: "20px",
+                              marginBottom: "20px",
+                              width: "120px",
+                            }}
+                          >
+                            <img
+                              src={image}
+                              style={{
+                                width: "120px",
+                                aspectRatio: 1,
+                                objectFit: "cover",
+                                borderRadius: "5px",
+                              }}
+                            ></img>
+                            <button
+                              type="button"
+                              style={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                transform: "translate(30%, -30%)",
+                                color: "white",
+                                backgroundColor: "red",
+                                borderRadius: "50%",
+                                border: "none",
+                                // display: "flex",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                // height: "20px",
+                                aspectRatio: 1,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {
+                                setReply({
+                                  ...reply,
+                                  images: reply.images.filter(
+                                    (image2, idx2) => idx2 !== idx
+                                  ),
+                                });
+                              }}
+                            >
+                              <Remove sx={{ width: "15px" }} />
+                            </button>
+                          </Box>
+                        ))}
+                      </Box>
+                      {reply.file !== null && (
+                        <Paper
                           sx={{
+                            // backgroundColor: "rgba(255, 255, 255, 0.08)",
+                            borderRadius: "10px",
+                            padding: "0.5rem 1rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            cursor: "pointer",
                             position: "relative",
-                            marginRight: "20px",
+                            // "&:hover": {
+                            //   backgroundColor: "rgba(255, 255, 255, 0.15)",
+                            // },
                             marginBottom: "20px",
-                            width: "120px",
                           }}
                         >
-                          <img
-                            src={image}
+                          <div
                             style={{
-                              width: "120px",
-                              aspectRatio: 1,
-                              objectFit: "cover",
-                              borderRadius: "5px",
+                              position: "absolute",
+                              // backgroundColor: "red",
+                              top: 0,
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              borderRadius: "10px",
                             }}
-                          ></img>
+                          ></div>
                           <button
                             type="button"
                             style={{
@@ -682,7 +755,7 @@ const Comment = ({ comment, postId }) => {
                               right: 0,
                               transform: "translate(30%, -30%)",
                               color: "white",
-                              backgroundColor: "red",
+                              // backgroundColor: "red",
                               borderRadius: "50%",
                               border: "none",
                               // display: "flex",
@@ -692,98 +765,38 @@ const Comment = ({ comment, postId }) => {
                               // height: "20px",
                               aspectRatio: 1,
                               cursor: "pointer",
+                              // zIndex: 100
                             }}
                             onClick={() => {
                               setReply({
                                 ...reply,
-                                images: reply.images.filter(
-                                  (image2, idx2) => idx2 !== idx
-                                ),
+                                file: null,
                               });
                             }}
                           >
                             <Remove sx={{ width: "15px" }} />
                           </button>
-                        </Box>
-                      ))}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {reply.file.type === "zip" ? (
+                              <FolderZip />
+                            ) : (
+                              <InsertDriveFile />
+                            )}
+                            <Typography sx={{ marginLeft: "5px" }}>
+                              {reply.file.name}
+                            </Typography>
+                          </Box>
+                          <Typography>{reply.file.size}</Typography>
+                        </Paper>
+                      )}
                     </Box>
-                    {reply.file !== null && (
-                      <Paper
-                        sx={{
-                          // backgroundColor: "rgba(255, 255, 255, 0.08)",
-                          borderRadius: "10px",
-                          padding: "0.5rem 1rem",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          cursor: "pointer",
-                          position: "relative",
-                          // "&:hover": {
-                          //   backgroundColor: "rgba(255, 255, 255, 0.15)",
-                          // },
-                          marginBottom: "20px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            position: "absolute",
-                            // backgroundColor: "red",
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            borderRadius: "10px",
-                          }}
-                        ></div>
-                        <button
-                          type="button"
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            transform: "translate(30%, -30%)",
-                            color: "white",
-                            // backgroundColor: "red",
-                            borderRadius: "50%",
-                            border: "none",
-                            // display: "flex",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            // height: "20px",
-                            aspectRatio: 1,
-                            cursor: "pointer",
-                            // zIndex: 100
-                          }}
-                          onClick={() => {
-                            setReply({
-                              ...reply,
-                              file: null,
-                            });
-                          }}
-                        >
-                          <Remove sx={{ width: "15px" }} />
-                        </button>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          {reply.file.type === "zip" ? (
-                            <FolderZip />
-                          ) : (
-                            <InsertDriveFile />
-                          )}
-                          <Typography sx={{ marginLeft: "5px" }}>
-                            {reply.file.name}
-                          </Typography>
-                        </Box>
-                        <Typography>{reply.file.size}</Typography>
-                      </Paper>
-                    )}
-                  </Box>
+                  )}
                 </CommentForm>
               </Box>
             </div>

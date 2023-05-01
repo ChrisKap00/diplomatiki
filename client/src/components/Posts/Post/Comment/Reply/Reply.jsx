@@ -38,11 +38,14 @@ import { styled, alpha } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteComment,
+  deleteReply,
   likeComment,
+  likeReply,
   postReply,
 } from "../../../../../store/actions/posts";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
 import FileBase from "react-file-base64";
+import ImageCarousel from "../../../../ImageCarousel/ImageCarousel";
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -55,6 +58,7 @@ const Reply = ({ reply, postId, commentId }) => {
   const dispatch = useDispatch();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
+  const [images, setImages] = useState(null);
 
   const isProfileMenuOpen = Boolean(menuAnchorEl);
   const handleMenuOpen = (event) => {
@@ -75,7 +79,7 @@ const Reply = ({ reply, postId, commentId }) => {
   const handleDelete = () => {
     console.log(`Deleting reply ${reply._id}`);
     closeDeleteConfirmationModal();
-    // dispatch(deleteComment({ postId, commentId, replyId: reply._id }));
+    dispatch(deleteReply({ postId, commentId, replyId: reply._id }));
   };
 
   const renderMenu = (
@@ -122,6 +126,7 @@ const Reply = ({ reply, postId, commentId }) => {
 
   return (
     <>
+      {images && <ImageCarousel images={images} setImages={setImages} />}
       <div
         style={{
           display: "flex",
@@ -140,6 +145,7 @@ const Reply = ({ reply, postId, commentId }) => {
               reply.postedAt === "Deleting..."
                 ? "none"
                 : "auto",
+                height: "fit-content",
           }}
         >
           <Avatar
@@ -263,11 +269,15 @@ const Reply = ({ reply, postId, commentId }) => {
                             ? "none"
                             : "auto",
                       }}
+                      component="div"
+                      onClick={() => {
+                        setImages(reply.images);
+                      }}
                     >
                       <Box
                         sx={{
-                          width: "100px",
-                          height: "100px",
+                          width: "60px",
+                          height: "60px",
                           borderRadius: "50%",
                           backgroundColor: "rgba(20, 20, 20, 0.8)",
                           display: "flex",
@@ -276,7 +286,7 @@ const Reply = ({ reply, postId, commentId }) => {
                         }}
                       >
                         <Typography
-                          sx={{ fontSize: "2rem", fontWeight: "600" }}
+                          sx={{ fontSize: "1.7rem", fontWeight: "600" }}
                         >
                           {reply.images.length}
                         </Typography>
@@ -360,13 +370,14 @@ const Reply = ({ reply, postId, commentId }) => {
                 icon={<FavoriteBorder />}
                 checkedIcon={<Favorite />}
                 onClick={() => {
-                  //   dispatch(
-                  //     likeComment({
-                  //       userId: user.result._id,
-                  //       postId,
-                  //       commentId: comment._id,
-                  //     })
-                  //   );
+                  dispatch(
+                    likeReply({
+                      userId: user.result._id,
+                      postId,
+                      commentId,
+                      replyId: reply._id,
+                    })
+                  );
                 }}
                 checked={reply.likes.includes(user.result._id)}
                 disabled={
@@ -381,30 +392,6 @@ const Reply = ({ reply, postId, commentId }) => {
           <Box
             sx={{ display: "flex", alignItems: "center", paddingTop: "5px" }}
           >
-            {/* <div
-              onClick={() => {
-                // setRepliesOpen(!repliesOpen);
-              }}
-            >
-              <Typography
-                sx={{
-                  opacity: "50%",
-                  marginRight: "5px",
-                  cursor: "pointer",
-                  userSelect: "none",
-                  pointerEvents:
-                    comment.postedAt === "Posting..." ||
-                    comment.postedAt === "Deleting..."
-                      ? "none"
-                      : "auto",
-                }}
-              >
-                Απαντήστε
-              </Typography>
-            </div> */}
-            {/* <Typography sx={{ opacity: "50%", marginRight: "5px" }}>
-              ·
-            </Typography> */}
             <Typography sx={{ opacity: "50%" }}>
               {reply.postedAt === "Posting..."
                 ? "Posting..."
@@ -414,7 +401,10 @@ const Reply = ({ reply, postId, commentId }) => {
             </Typography>
             <div
               style={{
-                display: reply.userId === user?.result._id ? "flex" : "none",
+                display:
+                  reply.userId === user?.result._id && !reply.deleted
+                    ? "flex"
+                    : "none",
                 alignItems: "center",
                 paddingLeft: "10px",
                 cursor: "pointer",
@@ -437,279 +427,6 @@ const Reply = ({ reply, postId, commentId }) => {
             </div>
             {renderMenu}
           </Box>
-          {/* <Collapse in={repliesOpen} unmountOnExit>
-            <div
-              style={{
-                display: "flex",
-                // marginBottom: "20px",
-                // backgroundColor: "red",
-              }}
-            >
-              <Avatar
-                sx={{ height: "30px", width: "30px" }}
-                src={defaultPfp}
-              ></Avatar>
-              <Box
-                sx={{
-                  width: "100%",
-                  paddingLeft: "10px",
-                }}
-              >
-                <CommentForm
-                  sx={{
-                    "&:hover": {
-                      backgroundColor:
-                        comment.postedAt === "Posting..." ||
-                        comment.postedAt === "Deleting..."
-                          ? "rgba(255, 255, 255, 0.15)"
-                          : "rgba(255, 255, 255, 0.25)",
-                    },
-                  }}
-                  // onSubmit={(e) => {
-                  //   // e.preventDefault();
-                  //   console.log(e);
-                  // }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "0.5rem 1rem",
-                    }}
-                  >
-                    <StyledInputBase
-                      disabled={
-                        comment.postedAt === "Posting..." ||
-                        comment.postedAt === "Deleting..."
-                      }
-                      onKeyDown={(e) => {
-                        if (e.code === "Enter") {
-                          if (shiftHeld) {
-                            console.log("Shift is held down");
-                          } else {
-                            e.preventDefault();
-                            if (reply.text.trim() !== "") {
-                              replyOnComment();
-                              console.log(reply);
-                              e.target.value = "";
-                            }
-                          }
-                        }
-                      }}
-                      onChange={(e) => {
-                        if (e.code === "Enter") return;
-                        // console.log(e.target.value);
-                        setReply({ ...reply, text: e.target.value });
-                      }}
-                      name="inputName"
-                      placeholder="Γράψτε μια απάντηση..."
-                    />
-                  </Box>
-                  <Stack
-                    direction="row"
-                    gap={1}
-                    mt={2}
-                    sx={{
-                      padding: "0.5rem",
-                      pointerEvents:
-                        comment.postedAt === "Posting..." ||
-                        comment.postedAt === "Deleting..."
-                          ? "none"
-                          : "auto",
-                    }}
-                  >
-                    <IconButton component="label">
-                      <Image color="primary" />
-                      <div style={{ display: "none" }}>
-                        <ReactImageFileToBase64
-                          multiple={true}
-                          onCompleted={(data) => {
-                            console.log(data);
-                            setReply({
-                              ...reply,
-                              images: [
-                                ...reply.images,
-                                ...data.map((e) => e.base64_file),
-                              ],
-                            });
-                          }}
-                        />
-                      </div>
-                    </IconButton>
-                    <IconButton component="label">
-                      <AttachFile color="primary" />
-                      <div style={{ display: "none" }}>
-                        <FileBase
-                          multiple={false}
-                          onDone={(data) => {
-                            console.log(data);
-                            setReply({
-                              ...reply,
-                              file: {
-                                base64: data.base64,
-                                name: data.name,
-                                size: data.size,
-                                type: data.type.substring(
-                                  data.type.indexOf("/") + 1
-                                ),
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                    </IconButton>
-                  </Stack>
-                  <Box sx={{ paddingInline: "1rem", paddingBottom: "0.1rem" }}>
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(5, minmax(120px, 1fr))",
-                        gridGap: "1rem",
-                        paddingBlock: comment.images.length > 0 ? "10px" : 0,
-                      }}
-                    >
-                      {reply.images.map((image, idx) => (
-                        <Box
-                          key={idx}
-                          sx={{
-                            position: "relative",
-                            marginRight: "20px",
-                            marginBottom: "20px",
-                            width: "120px",
-                          }}
-                        >
-                          <img
-                            src={image}
-                            style={{
-                              width: "120px",
-                              aspectRatio: 1,
-                              objectFit: "cover",
-                              borderRadius: "5px",
-                            }}
-                          ></img>
-                          <button
-                            type="button"
-                            style={{
-                              position: "absolute",
-                              top: 0,
-                              right: 0,
-                              transform: "translate(30%, -30%)",
-                              color: "white",
-                              backgroundColor: "red",
-                              borderRadius: "50%",
-                              border: "none",
-                              // display: "flex",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              // height: "20px",
-                              aspectRatio: 1,
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              setReply({
-                                ...reply,
-                                images: reply.images.filter(
-                                  (image2, idx2) => idx2 !== idx
-                                ),
-                              });
-                            }}
-                          >
-                            <Remove sx={{ width: "15px" }} />
-                          </button>
-                        </Box>
-                      ))}
-                    </Box>
-                    {reply.file !== null && (
-                      <Paper
-                        sx={{
-                          // backgroundColor: "rgba(255, 255, 255, 0.08)",
-                          borderRadius: "10px",
-                          padding: "0.5rem 1rem",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          cursor: "pointer",
-                          position: "relative",
-                          // "&:hover": {
-                          //   backgroundColor: "rgba(255, 255, 255, 0.15)",
-                          // },
-                          marginBottom: "20px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            position: "absolute",
-                            // backgroundColor: "red",
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            borderRadius: "10px",
-                          }}
-                        ></div>
-                        <button
-                          type="button"
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            transform: "translate(30%, -30%)",
-                            color: "white",
-                            backgroundColor: "red",
-                            borderRadius: "50%",
-                            border: "none",
-                            // display: "flex",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            // height: "20px",
-                            aspectRatio: 1,
-                            cursor: "pointer",
-                            // zIndex: 100
-                          }}
-                          onClick={() => {
-                            setReply({
-                              ...reply,
-                              file: null,
-                            });
-                          }}
-                        >
-                          <Remove sx={{ width: "15px" }} />
-                        </button>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          {reply.file.type === "zip" ? (
-                            <FolderZip />
-                          ) : (
-                            <InsertDriveFile />
-                          )}
-                          <Typography sx={{ marginLeft: "5px" }}>
-                            {reply.file.name}
-                          </Typography>
-                        </Box>
-                        <Typography>{reply.file.size}</Typography>
-                      </Paper>
-                    )}
-                  </Box>
-                </CommentForm>
-              </Box>
-            </div>
-            {comment.replies.map((reply, idx) => (
-              <Reply
-                key={idx}
-                reply={reply}
-                postId={postId}
-                commentId={comment._id}
-              />
-            ))}
-          </Collapse> */}
         </Box>
       </div>
       <StyledModal

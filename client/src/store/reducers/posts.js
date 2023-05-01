@@ -231,6 +231,139 @@ export default (
             : post
         ),
       };
+    case "SHOW_TEMP_DEL_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply._id === action.payload.replyId
+                            ? { ...reply, postedAt: "Deleting..." }
+                            : reply
+                        ),
+                      }
+                    : comment
+                ),
+                loadingPostComment: true,
+              }
+            : post
+        ),
+      };
+    case "DELETE_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply._id === action.payload.replyId
+                            ? {
+                                ...reply,
+                                deleted: true,
+                                text: "",
+                                images: [],
+                                file: null,
+                                postedAt: action.payload.postedAt,
+                              }
+                            : reply
+                        ),
+                      }
+                    : comment
+                ),
+                loadingPostComment: false,
+              }
+            : post
+        ),
+      };
+    case "START_LOADING_LIKE_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply._id === action.payload.replyId
+                            ? { ...reply, loadingLike: true }
+                            : reply
+                        ),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        ),
+      };
+    case "STOP_LOADING_LIKE_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply._id === action.payload.replyId
+                            ? { ...reply, loadingLike: false }
+                            : reply
+                        ),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        ),
+      };
+    case "LIKE_REPLY":
+      return {
+        ...state,
+        data: state.data.map((post) =>
+          post._id === action.payload.postId
+            ? {
+                ...post,
+                comments: post.comments.map((comment) =>
+                  comment._id === action.payload.commentId
+                    ? {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                          reply._id === action.payload.replyId
+                            ? {
+                                ...reply,
+                                likes: reply.likes.includes(
+                                  action.payload.userId
+                                )
+                                  ? reply.likes.filter(
+                                      (id) => id !== action.payload.userId
+                                    )
+                                  : [...reply.likes, action.payload.userId],
+                              }
+                            : reply
+                        ),
+                      }
+                    : comment
+                ),
+              }
+            : post
+        ),
+      };
     default:
       return state;
   }

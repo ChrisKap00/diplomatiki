@@ -19,7 +19,7 @@ export const signin = (formData, navigate, setAlert) => async (dispatch) => {
     console.log(data);
     if (!data.error) {
       dispatch({ type: "AUTH", payload: data });
-      navigate(0);
+      // navigate(0);
     } else {
       setAlert(data);
     }

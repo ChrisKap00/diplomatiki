@@ -38,6 +38,10 @@ export const post = (postData) => async (dispatch) => {
           comments: [],
         },
       });
+      dispatch({
+        type: "ADD_POST_TO_USER",
+        payload: { groupId: postData.groupId, postId: data.postId },
+      });
     }
   } catch (error) {
     console.log(error);
@@ -64,6 +68,7 @@ export const deletePost = (id) => async (dispatch) => {
     const { data } = await api.deletePost(id);
     if (!data.error) {
       dispatch({ type: "DELETE_POST", payload: data.postId });
+      dispatch({ type: "REMOVE_POST_FROM_USER", payload: data.postId });
     }
   } catch (error) {
     console.log(error);
@@ -215,4 +220,37 @@ export const postReply = (replyData) => async (dispatch) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const deleteReply = (params) => async (dispatch) => {
+  dispatch({ type: "SHOW_TEMP_DEL_REPLY", payload: params });
+  try {
+    const { data } = await api.deleteReply(params);
+    console.log(data);
+    if (!data.error) {
+      dispatch({
+        type: "DELETE_REPLY",
+        payload: {
+          postId: params.postId,
+          commentId: params.commentId,
+          replyId: params.replyId,
+          postedAt: data.postedAt,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const likeReply = (params) => async (dispatch) => {
+  dispatch({ type: "START_LOADING_LIKE_REPLY", payload: params });
+  try {
+    const { data } = await api.likeReply(params);
+    console.log(data);
+    if (!data.error) dispatch({ type: "LIKE_REPLY", payload: params });
+  } catch (error) {
+    console.log(error);
+  }
+  dispatch({ type: "STOP_LOADING_LIKE_REPLY", payload: params });
 };

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import Post from "../models/post.js";
+import User from "../models/user.js";
 
 const router = express.Router();
 
@@ -33,6 +34,9 @@ router.post("/post", async (req, res) => {
       file,
       postedAt,
     });
+    const user = await User.findById(userId);
+    user.posts.push({ postId: result._id, groupId });
+    await User.findByIdAndUpdate(userId, user, { new: true });
     res.status(200).json({ error: 0, postId: result._id, postedAt });
   } catch (error) {
     console.log(error);
@@ -43,7 +47,8 @@ router.post("/post", async (req, res) => {
 router.post("/fetch", async (req, res) => {
   // console.log(req.body);
   try {
-    const { userId, groups, page, groupId, profileId } = req.body;
+    const { userId, groups, page, groupId, profileId, search } = req.body;
+    console.log(groups);
     if (groups) {
       let posts = [];
       const existingPosts = await Post.find({});
@@ -54,10 +59,16 @@ router.post("/fetch", async (req, res) => {
       }
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
       posts = posts.splice(page, page + 5);
-      // console.log(posts.splice(page, page + 5));
-      res.status(200).json({ error: 0, posts });
-    } else if (groupId) {
+      const user =
+        // console.log(posts.splice(page, page + 5));
+        res.status(200).json({ error: 0, posts });
+    } else if (groupId && !search) {
       let posts = await Post.find({ groupId });
+      posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
+      posts = posts.splice(page, page + 5);
+      res.status(200).json({ error: 0, posts });
+    } else if (groupId && search) {
+      let posts = await Post.find({ groupId, text: RegExp(search, "i") });
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
       posts = posts.splice(page, page + 5);
       res.status(200).json({ error: 0, posts });
@@ -211,6 +222,60 @@ router.post("/reply", async (req, res) => {
           (reply) => String(reply.postedAt) === String(postedAt)
         )[0]._id,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
+router.patch("/deleteReply", async (req, res) => {
+  try {
+    const { postId, commentId, replyId } = req.query;
+    const post = await Post.findById(postId);
+    let postedAt;
+    for (let comment of post.comments) {
+      if (String(comment._id) === commentId) {
+        for (let reply of comment.replies) {
+          if (String(reply._id) === replyId) {
+            reply.deleted = true;
+            reply.text = "";
+            reply.images = [];
+            reply.file = null;
+            postedAt = reply.postedAt;
+          }
+
+          // comment.likes = comment.likes.includes(userId)
+          //   ? comment.likes.filter((id) => id !== userId)
+          //   : [...comment.likes, userId];
+          break;
+        }
+      }
+    }
+    await Post.findByIdAndUpdate(postId, post, { new: true });
+    res.status(200).json({ error: 0, postedAt });
+  } catch (error) {
+    res.status(500).json({ error: 1 });
+  }
+});
+
+router.patch("/likeReply", async (req, res) => {
+  try {
+    const { userId, postId, commentId, replyId } = req.query;
+    const post = await Post.findById(postId);
+    for (let comment of post.comments) {
+      if (String(comment._id) === commentId) {
+        for (let reply of comment.replies) {
+          if (String(reply._id) === replyId) {
+            reply.likes = reply.likes.includes(userId)
+              ? reply.likes.filter((id) => id !== userId)
+              : [...reply.likes, userId];
+          }
+          break;
+        }
+      }
+    }
+    await Post.findByIdAndUpdate(postId, post, { new: true });
+    res.status(200).json({ error: 0 });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });

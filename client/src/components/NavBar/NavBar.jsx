@@ -164,6 +164,7 @@ const NavBar = () => {
         sx={{
           position: "sticky",
           height: "64px",
+          zIndex: 50,
         }}
       >
         <Toolbar
