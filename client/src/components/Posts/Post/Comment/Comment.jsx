@@ -111,6 +111,14 @@ const Comment = ({ comment, postId }) => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log(images);
+    if (!images) document.body.style.overflowY = "auto";
+    else {
+      document.body.style.overflowY = "hidden";
+    }
+  }, [images]);
+
   const replyOnComment = () => {
     setReply({ text: "", images: [], file: null });
     dispatch(
@@ -226,7 +234,7 @@ const Comment = ({ comment, postId }) => {
         >
           <Avatar
             sx={{ height: "30px", width: "30px" }}
-            src={defaultPfp}
+            src={comment?.userPfp ? comment?.userPfp : defaultPfp}
           ></Avatar>
         </Link>
         <Box sx={{ width: "calc(100% - 30px)", paddingLeft: "10px" }}>
@@ -543,7 +551,7 @@ const Comment = ({ comment, postId }) => {
             >
               <Avatar
                 sx={{ height: "30px", width: "30px" }}
-                src={defaultPfp}
+                src={user?.result?.pfp}
               ></Avatar>
               <Box
                 sx={{

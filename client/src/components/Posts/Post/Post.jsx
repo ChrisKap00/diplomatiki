@@ -232,7 +232,7 @@ export default function Post({ post }) {
               to={`/profile/${post.userId}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <Avatar src={defaultPfp}></Avatar>
+              <Avatar src={post?.userPfp ? post.userPfp : defaultPfp}></Avatar>
             </Link>
           }
           action={
@@ -451,7 +451,7 @@ export default function Post({ post }) {
             >
               <Avatar
                 sx={{ height: "30px", width: "30px" }}
-                src={defaultPfp}
+                src={user?.result?.pfp}
               ></Avatar>
               <Box
                 sx={{

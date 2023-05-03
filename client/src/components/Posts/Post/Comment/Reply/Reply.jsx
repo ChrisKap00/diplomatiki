@@ -82,6 +82,14 @@ const Reply = ({ reply, postId, commentId }) => {
     dispatch(deleteReply({ postId, commentId, replyId: reply._id }));
   };
 
+  useEffect(() => {
+    console.log(images);
+    if (!images) document.body.style.overflowY = "auto";
+    else {
+      document.body.style.overflowY = "hidden";
+    }
+  }, [images]);
+
   const renderMenu = (
     <Menu
       anchorEl={menuAnchorEl}
@@ -145,12 +153,12 @@ const Reply = ({ reply, postId, commentId }) => {
               reply.postedAt === "Deleting..."
                 ? "none"
                 : "auto",
-                height: "fit-content",
+            height: "fit-content",
           }}
         >
           <Avatar
             sx={{ height: "30px", width: "30px" }}
-            src={defaultPfp}
+            src={reply?.userPfp ? reply.userPfp : defaultPfp}
           ></Avatar>
         </Link>
         <Box sx={{ width: "100%", paddingLeft: "10px" }}>

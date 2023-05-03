@@ -72,6 +72,11 @@ router.post("/fetch", async (req, res) => {
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
       posts = posts.splice(page, page + 5);
       res.status(200).json({ error: 0, posts });
+    } else if (profileId) {
+      let posts = await Post.find({ userId: profileId });
+      posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
+      posts = posts.splice(page, page + 5);
+      res.status(200).json({ error: 0, posts });
     }
   } catch (error) {
     console.log(error);

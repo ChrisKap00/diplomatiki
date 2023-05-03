@@ -10,6 +10,7 @@ import NavBar from "./components/NavBar/NavBar";
 import Home from "./components/Home/Home";
 import Group from "./components/Group/Group";
 import AllGroups from "./components/AllGroups/AllGroups";
+import Profile from "./components/Profile/Profile";
 
 function App() {
   const theme = useSelector((state) => state.theme);
@@ -49,6 +50,11 @@ function App() {
             path="/"
             exact
             element={!user ? <Navigate to="/auth" replace /> : <Home />}
+          />
+          <Route
+            path="/profile/:id"
+            exact
+            element={!user ? <Navigate to="/auth" replace /> : <Profile />}
           />
           <Route
             path="/group/:id"

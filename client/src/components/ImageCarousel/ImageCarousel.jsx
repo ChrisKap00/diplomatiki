@@ -37,7 +37,7 @@ const ImageCarousel = ({ images, setImages }) => {
         backgroundColor: "rgba(0, 0, 0, 0.2)",
         backdropFilter: "blur(8px)",
         zIndex: 100,
-        overscrollBehavior: "none",
+        // overscrollBehavior: "none",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

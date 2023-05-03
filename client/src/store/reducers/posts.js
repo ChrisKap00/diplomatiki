@@ -364,6 +364,31 @@ export default (
             : post
         ),
       };
+    case "CHANGE_PFP_ON_POSTS":
+      return {
+        ...state,
+        data: state.data.map((post) => ({
+          ...post,
+          userPfp:
+            post.userId === action.payload.userId
+              ? action.payload.pfp
+              : post.userPfp,
+          comments: post.comments.map((comment) => ({
+            ...comment,
+            userPfp:
+              comment.userId === action.payload.userId
+                ? action.payload.pfp
+                : comment.userPfp,
+            replies: comment.replies.map((reply) => ({
+              ...reply,
+              userPfp:
+                reply.userId === action.payload.userId
+                  ? action.payload.pfp
+                  : reply.userPfp,
+            })),
+          })),
+        })),
+      };
     default:
       return state;
   }

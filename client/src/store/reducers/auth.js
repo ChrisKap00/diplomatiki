@@ -3,6 +3,7 @@ export default (
     isLoading: false,
     user: JSON.parse(localStorage.getItem("user")),
     isLoadingVerification: false,
+    isLoadingChangePfp: false,
   },
   action
 ) => {
@@ -70,6 +71,18 @@ export default (
               (post) => post.postId !== action.payload
             ),
           },
+        },
+      };
+    case "START_LOADING_CHANGE_PFP":
+      return { ...state, isLoadingChangePfp: true };
+    case "STOP_LOADING_CHANGE_PFP":
+      return { ...state, isLoadingChangePfp: false };
+    case "CHANGE_PFP":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          result: { ...state.user.result, pfp: action.payload },
         },
       };
     default:
