@@ -2,6 +2,7 @@ export default (
   state = {
     isLoading: false,
     data: [],
+    lastFetched: false,
   },
   action
 ) => {
@@ -10,8 +11,14 @@ export default (
       return { ...state, isLoading: true };
     case "STOP_LOADING_FETCH_POSTS":
       return { ...state, isLoading: false };
+    case "CLEAR_POSTS":
+      return { ...state, data: [], lastFetched: false };
     case "FETCH_POSTS":
-      return { ...state, data: action.payload };
+      return {
+        ...state,
+        data: [...state.data, ...action.payload.posts],
+        lastFetched: action.payload.last,
+      };
     case "SHOW_TEMP_POST":
       return { ...state, data: [action.payload, ...state.data] };
     case "CREATE_POST":

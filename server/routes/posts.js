@@ -48,7 +48,7 @@ router.post("/fetch", async (req, res) => {
   // console.log(req.body);
   try {
     const { userId, groups, page, groupId, profileId, search } = req.body;
-    console.log(groups);
+    console.log(req.body);
     if (groups) {
       let posts = [];
       const existingPosts = await Post.find({});
@@ -58,25 +58,79 @@ router.post("/fetch", async (req, res) => {
         }
       }
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
-      posts = posts.splice(page, page + 5);
-      const user =
-        // console.log(posts.splice(page, page + 5));
-        res.status(200).json({ error: 0, posts });
+      const postsTemp = posts.map((post) => String(post._id));
+      const postsToSend = posts.splice(page * 5, 5);
+      if (postsToSend.length === 0)
+        return res.status(200).json({ error: 0, posts: [], last: true });
+      // console.log(
+      //   postsToSend.map((post) => ({ text: post.text, _id: post._id })),
+      //   postsTemp,
+      //   page
+      // );
+      res.status(200).json({
+        error: 0,
+        posts: postsToSend,
+        last:
+          String(postsToSend[postsToSend.length - 1]._id) ===
+          postsTemp[postsTemp.length - 1],
+      });
     } else if (groupId && !search) {
       let posts = await Post.find({ groupId });
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
-      posts = posts.splice(page, page + 5);
-      res.status(200).json({ error: 0, posts });
+      const postsTemp = posts.map((post) => String(post._id));
+      const postsToSend = posts.splice(page * 5, 5);
+      if (postsToSend.length === 0)
+        return res.status(200).json({ error: 0, posts: [], last: true });
+      // console.log(
+      //   postsToSend.map((post) => ({ text: post.text, _id: post._id })),
+      //   postsTemp,
+      //   page
+      // );
+      res.status(200).json({
+        error: 0,
+        posts: postsToSend,
+        last:
+          String(postsToSend[postsToSend.length - 1]._id) ===
+          postsTemp[postsTemp.length - 1],
+      });
     } else if (groupId && search) {
       let posts = await Post.find({ groupId, text: RegExp(search, "i") });
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
-      posts = posts.splice(page, page + 5);
-      res.status(200).json({ error: 0, posts });
+      const postsTemp = posts.map((post) => String(post._id));
+      const postsToSend = posts.splice(page * 5, 5);
+      if (postsToSend.length === 0)
+        return res.status(200).json({ error: 0, posts: [], last: true });
+      // console.log(
+      //   postsToSend.map((post) => ({ text: post.text, _id: post._id })),
+      //   postsTemp,
+      //   page
+      // );
+      res.status(200).json({
+        error: 0,
+        posts: postsToSend,
+        last:
+          String(postsToSend[postsToSend.length - 1]._id) ===
+          postsTemp[postsTemp.length - 1],
+      });
     } else if (profileId) {
       let posts = await Post.find({ userId: profileId });
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
-      posts = posts.splice(page, page + 5);
-      res.status(200).json({ error: 0, posts });
+      const postsTemp = posts.map((post) => String(post._id));
+      const postsToSend = posts.splice(page * 5, 5);
+      if (postsToSend.length === 0)
+        return res.status(200).json({ error: 0, posts: [], last: true });
+      // console.log(
+      //   postsToSend.map((post) => ({ text: post.text, _id: post._id })),
+      //   postsTemp,
+      //   page
+      // );
+      res.status(200).json({
+        error: 0,
+        posts: postsToSend,
+        last:
+          String(postsToSend[postsToSend.length - 1]._id) ===
+          postsTemp[postsTemp.length - 1],
+      });
     }
   } catch (error) {
     console.log(error);

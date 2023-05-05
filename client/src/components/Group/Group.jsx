@@ -50,14 +50,28 @@ const Group = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { groups } = useSelector((state) => state.groups);
-  const { isLoading, data } = useSelector((state) => state.posts);
+  const { isLoading, data, lastFetched } = useSelector((state) => state.posts);
   const [group, setGroup] = useState(
     groups.filter((e) => e._id === location.pathname.split("/")[2])[0]
   );
   const [page, setPage] = useState(0);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(null);
+  const [scrollHeight, setScrollHeight] = useState(window.scrollY);
+  const [firstFetch, setFirstFetch] = useState(true);
+  let toggleSearch = false;
 
   useEffect(() => {
+    window.addEventListener(
+      "scroll",
+      () => {
+        setScrollHeight(window.scrollY);
+      },
+      { passive: true }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (groups.length > 0) return;
     dispatch(fetchGroups());
     // dispatch(fetchPosts({}))
   }, []);
@@ -69,8 +83,33 @@ const Group = () => {
   }, [groups]);
 
   useEffect(() => {
-    if (group) dispatch(fetchPosts({ groupId: group._id, page }));
-  }, [group]);
+    if (toggleSearch) {
+      console.log("TOGGLE SEARCH");
+      return;
+    }
+    console.log(page);
+    dispatch(
+      fetchPosts({
+        groupId: location.pathname.split("/")[2],
+        page,
+        search,
+      })
+    );
+    if (firstFetch) setFirstFetch(false);
+  }, [page]);
+
+  useEffect(() => {
+    if (firstFetch || lastFetched) return;
+    // console.log(scrollHeight, document.body.scrollHeight, isLoading);
+    console.log(scrollHeight, window.innerHeight, document.body.clientHeight);
+    if (
+      scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 &&
+      !isLoading
+    ) {
+      // console.log(scrollHeight, document.body.scrollHeight);
+      setPage(page + 1);
+    }
+  }, [scrollHeight]);
 
   return (
     <Box>
@@ -103,9 +142,12 @@ const Group = () => {
           <Search
             onSubmit={(e) => {
               e.preventDefault();
+              dispatch({ type: "CLEAR_POSTS" });
+              toggleSearch = true;
               setPage(0);
-              dispatch(fetchPosts({ groupId: group._id, page, search }));
-              setSearch("");
+              dispatch(fetchPosts({ groupId: group._id, page: 0, search }));
+              // setSearch("");
+              toggleSearch = false;
             }}
             onChange={(e) => setSearch(e.target.value)}
           >
@@ -140,15 +182,13 @@ const Group = () => {
             }}
           >
             <Create group={group} />
-            {isLoading ? (
-              <>
-                <LoadingPost />
-                <LoadingPost />
-                <LoadingPost />
-              </>
-            ) : (
-              data.map((post, index) => <Post key={index} post={post} />)
-            )}
+            <>
+              {data.map((post, index) => (
+                <Post key={index} post={post} />
+              ))}
+              {!lastFetched && <LoadingPost />}
+              {!lastFetched && <LoadingPost />}
+            </>
           </Box>
           <Box
             flex={1}

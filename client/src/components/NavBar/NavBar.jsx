@@ -137,13 +137,22 @@ const NavBar = () => {
       transformOrigin={{ horizontal: "right", vertical: "top" }}
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
     >
-      <MenuItem onClick={handleProfileMenuClose}>
+      <MenuItem
+        onClick={() => {
+          handleProfileMenuClose();
+          navigate(`/profile/${user?.result?._id}`);
+        }}
+      >
         <ListItemIcon>
           <Person fontSize="small" />
         </ListItemIcon>
         Profile
       </MenuItem>
-      <MenuItem onClick={handleProfileMenuClose}>
+      <MenuItem
+        onClick={() => {
+          // handleProfileMenuClose();
+        }}
+      >
         <ListItemIcon>
           <Settings fontSize="small" />
         </ListItemIcon>

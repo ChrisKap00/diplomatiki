@@ -32,6 +32,7 @@ function App() {
       type: "UPDATE_USER_ON_ACTION",
       payload: JSON.parse(localStorage.getItem("user")),
     });
+    dispatch({ type: "CLEAR_POSTS" });
     // console.log(location.search.split("=")[1]);
   }, [location]);
 

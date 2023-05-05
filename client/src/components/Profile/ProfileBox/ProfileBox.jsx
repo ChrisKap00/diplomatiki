@@ -16,8 +16,20 @@ const ProfileBox = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
-  const { isLoading, data } = useSelector((state) => state.posts);
+  const { isLoading, data, lastFetched } = useSelector((state) => state.posts);
   const [pfp, setPfp] = useState(null);
+  const [scrollHeight, setScrollHeight] = useState(window.scrollY);
+  const [firstFetch, setFirstFetch] = useState(true);
+
+  useEffect(() => {
+    window.addEventListener(
+      "scroll",
+      () => {
+        setScrollHeight(window.scrollY);
+      },
+      { passive: true }
+    );
+  }, []);
 
   useEffect(() => {
     const id = location.pathname.split("/")[2];
@@ -34,10 +46,23 @@ const ProfileBox = () => {
   }, []);
 
   useEffect(() => {
-    if (!profile) return;
-    console.log(profile);
-    dispatch(fetchPosts({ profileId: profile._id, page }));
-  }, [profile]);
+    console.log(page);
+    dispatch(fetchPosts({ profileId: location.pathname.split("/")[2], page }));
+    if (firstFetch) setFirstFetch(false);
+  }, [page]);
+
+  useEffect(() => {
+    if (firstFetch || lastFetched) return;
+    // console.log(scrollHeight, document.body.scrollHeight, isLoading);
+    console.log(scrollHeight, window.innerHeight, document.body.clientHeight);
+    if (
+      scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 &&
+      !isLoading
+    ) {
+      // console.log(scrollHeight, document.body.scrollHeight);
+      setPage(page + 1);
+    }
+  }, [scrollHeight]);
 
   return (
     <Box
@@ -147,15 +172,13 @@ const ProfileBox = () => {
         </Typography>
         <hr width="90%" style={{ opacity: "60%" }}></hr>
         <br></br>
-        {isLoading ? (
-          <>
-            <LoadingPost />
-            <LoadingPost />
-            <LoadingPost />
-          </>
-        ) : (
-          data.map((post, index) => <Post key={index} post={post} />)
-        )}
+        <>
+          {data.map((post, index) => (
+            <Post key={index} post={post} />
+          ))}
+          {!lastFetched && <LoadingPost />}
+          {!lastFetched && <LoadingPost />}
+        </>
       </>
     </Box>
   );

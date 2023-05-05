@@ -8,10 +8,22 @@ import LoadingPost from "../LoadingPost/LoadingPost";
 import { fetchPosts } from "../../store/actions/posts";
 
 const Posts = () => {
-  const { isLoading, data } = useSelector((state) => state.posts);
+  const { isLoading, data, lastFetched } = useSelector((state) => state.posts);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
+  const [scrollHeight, setScrollHeight] = useState(window.scrollY);
+  const [firstFetch, setFirstFetch] = useState(true);
+
+  useEffect(() => {
+    window.addEventListener(
+      "scroll",
+      () => {
+        setScrollHeight(window.scrollY);
+      },
+      { passive: true }
+    );
+  }, []);
 
   useEffect(() => {
     console.log(page);
@@ -22,7 +34,21 @@ const Posts = () => {
         page,
       })
     );
+    if (firstFetch) setFirstFetch(false);
   }, [page]);
+
+  useEffect(() => {
+    if (firstFetch || lastFetched) return;
+    // console.log(scrollHeight, document.body.scrollHeight, isLoading);
+    console.log(scrollHeight, window.innerHeight, document.body.clientHeight);
+    if (
+      scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 &&
+      !isLoading
+    ) {
+      // console.log(scrollHeight, document.body.scrollHeight);
+      setPage(page + 1);
+    }
+  }, [scrollHeight]);
 
   return (
     <Box
@@ -37,15 +63,13 @@ const Posts = () => {
       p={2}
     >
       <Create />
-      {isLoading ? (
-        <>
-          <LoadingPost />
-          <LoadingPost />
-          <LoadingPost />
-        </>
-      ) : (
-        data.map((post, index) => <Post key={index} post={post} />)
-      )}
+      <>
+        {data.map((post, index) => (
+          <Post key={index} post={post} />
+        ))}
+        {!lastFetched && <LoadingPost />}
+        {!lastFetched && <LoadingPost />}
+      </>
     </Box>
   );
 };

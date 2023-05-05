@@ -54,7 +54,10 @@ export const fetchPosts = (params) => async (dispatch) => {
     const { data } = await api.fetchPosts(params);
     console.log(data);
     if (!data.error) {
-      dispatch({ type: "FETCH_POSTS", payload: data.posts });
+      dispatch({
+        type: "FETCH_POSTS",
+        payload: { posts: data.posts, last: data.last },
+      });
     }
   } catch (error) {
     console.log(error);
