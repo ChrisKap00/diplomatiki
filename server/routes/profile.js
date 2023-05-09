@@ -34,4 +34,20 @@ router.post("/changePfp", async (req, res) => {
   }
 });
 
+router.get("/fetchProfileInfo", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const user = await User.findById(userId);
+    res.status(200).json({
+      error: 0,
+      pfp: user.pfp,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
 export default router;

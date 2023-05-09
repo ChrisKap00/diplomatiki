@@ -14,3 +14,19 @@ export const changePfp = (userId, pfp) => async (dispatch) => {
   }
   dispatch({ type: "STOP_LOADING_CHANGE_PFP" });
 };
+
+export const fetchProfileInfo = (userId, setProfile) => async (dispatch) => {
+  try {
+    const { data } = await api.fetchProfileInfo(userId);
+    if (!data.error) {
+      setProfile({
+        _id: userId,
+        pfp: data.pfp,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

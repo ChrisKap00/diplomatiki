@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.js";
 import groupRoutes from "./routes/groups.js";
 import postRoutes from "./routes/posts.js";
 import profileRoutes from "./routes/profile.js";
+import messageRoutes from "./routes/messages.js";
 
 const app = express();
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -17,6 +18,7 @@ app.use("/auth", authRoutes);
 app.use("/groups", groupRoutes);
 app.use("/posts", postRoutes);
 app.use("/profile", profileRoutes);
+app.use("/messages", messageRoutes);
 
 const PORT = 5000;
 

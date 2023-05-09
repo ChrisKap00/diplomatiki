@@ -20,7 +20,6 @@ code {
 ::-webkit-scrollbar-track {
   /* margin-block: 10px; */
   background: transparent;
-  margin-block: 15px;
 }
 
 /* Handle */

@@ -11,6 +11,8 @@ import Home from "./components/Home/Home";
 import Group from "./components/Group/Group";
 import AllGroups from "./components/AllGroups/AllGroups";
 import Profile from "./components/Profile/Profile";
+import Inbox from "./components/Inbox/Inbox";
+import { fetchMessages } from "./store/actions/messages";
 
 function App() {
   const theme = useSelector((state) => state.theme);
@@ -26,6 +28,10 @@ function App() {
       mode: theme,
     },
   });
+
+  useEffect(() => {
+    dispatch(fetchMessages(user?.result._id));
+  }, []);
 
   useEffect(() => {
     dispatch({
@@ -66,6 +72,11 @@ function App() {
             path="/groups"
             exact
             element={!user ? <Navigate to="/auth" replace /> : <AllGroups />}
+          />
+          <Route
+            path="/messages"
+            exact
+            element={!user ? <Navigate to="/auth" replace /> : <Inbox />}
           />
           <Route
             path="/auth"

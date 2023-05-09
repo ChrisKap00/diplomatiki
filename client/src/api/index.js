@@ -16,6 +16,8 @@ export const signIn = (formData) => API.post("/auth/signin", formData);
 export const verify = (token) => API.get(`/auth/verification/${token}`);
 
 export const changePfp = (data) => API.post("/profile/changePfp", data);
+export const fetchProfileInfo = (userId) =>
+  API.get(`/profile/fetchProfileInfo?userId=${userId}`);
 
 export const createGroup = ({ groupData, user }) =>
   API.post("groups/create", { groupData, user });
@@ -50,3 +52,10 @@ export const likeReply = ({ userId, postId, commentId, replyId }) =>
   API.patch(
     `/posts/likeReply?userId=${userId}&postId=${postId}&commentId=${commentId}&replyId=${replyId}`
   );
+
+export const fetchMessages = (userId) =>
+  API.get(`/messages/fetchMessages?userId=${userId}`);
+export const sendMessage = (messageData) =>
+  API.post("messages/sendMessage", messageData);
+export const fetchInfoForChat = (userId) =>
+  API.get(`/messages/fetchInfoForChat?userId=${userId}`);

@@ -10,9 +10,6 @@ const MyGroups = () => {
   return (
     <Box
       sx={{
-        // display: { xs: "none", lg: "flex" },
-        // flexDirection: "column",
-        // alignItems: "center",
         display: { xs: "none", lg: "block" },
         position: "sticky",
         top: "64px",

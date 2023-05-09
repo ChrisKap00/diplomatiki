@@ -9,6 +9,26 @@ const userSchema = mongoose.Schema({
   verified: { type: Boolean, default: false },
   groups: { type: [String], default: [] },
   posts: { type: [{ postId: String, groupId: String }], default: [] },
+  messages: {
+    type: [
+      {
+        withId: String,
+        withName: String,
+        withPfp: String,
+        data: [
+          {
+            senderId: String,
+            text: String,
+            image: String,
+            file: String,
+            sentAt: String,
+            counter: String,
+          },
+        ],
+      },
+    ],
+    default: [],
+  },
 });
 
 const User = mongoose.model("User", userSchema);

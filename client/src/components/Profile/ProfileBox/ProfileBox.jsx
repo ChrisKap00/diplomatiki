@@ -1,14 +1,20 @@
-import { Avatar, Box, CircularProgress, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  CircularProgress,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { fetchPosts } from "../../../store/actions/posts";
 import defaultPfp from "../../../assets/defaultPfp.jpg";
 import Post from "../../Posts/Post/Post";
 import LoadingPost from "../../LoadingPost/LoadingPost";
-import { Check, Clear, Edit } from "@mui/icons-material";
+import { Check, Clear, Edit, Message } from "@mui/icons-material";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
-import { changePfp } from "../../../store/actions/profile";
+import { changePfp, fetchProfileInfo } from "../../../store/actions/profile";
 
 const ProfileBox = () => {
   const [profile, setProfile] = useState(null);
@@ -20,6 +26,7 @@ const ProfileBox = () => {
   const [pfp, setPfp] = useState(null);
   const [scrollHeight, setScrollHeight] = useState(window.scrollY);
   const [firstFetch, setFirstFetch] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.addEventListener(
@@ -32,6 +39,11 @@ const ProfileBox = () => {
   }, []);
 
   useEffect(() => {
+    setPage(0);
+    dispatch(
+      fetchPosts({ profileId: location.pathname.split("/")[2], page: 0 })
+    );
+    if (firstFetch) setFirstFetch(false);
     const id = location.pathname.split("/")[2];
     console.log(id);
     if (user?.result._id === id)
@@ -40,15 +52,15 @@ const ProfileBox = () => {
         firstName: user.result.firstName,
         lastName: user.result.lastName,
         pfp: user.result.pfp,
-        posts: user.result.posts,
-        groups: user.result.groups,
       });
-  }, []);
+    else
+      dispatch(fetchProfileInfo(location.pathname.split("/")[2], setProfile));
+  }, [location]);
 
   useEffect(() => {
+    if (page === 0 || firstFetch) return;
     console.log(page);
     dispatch(fetchPosts({ profileId: location.pathname.split("/")[2], page }));
-    if (firstFetch) setFirstFetch(false);
   }, [page]);
 
   useEffect(() => {
@@ -167,9 +179,32 @@ const ProfileBox = () => {
             </button>
           </Box>
         )}
-        <Typography sx={{ marginTop: "10px" }} variant="h5">
-          {`${profile?.firstName} ${profile?.lastName}`}
-        </Typography>
+        {profile !== null && (
+          <Box
+            sx={{
+              marginTop: "10px",
+              position: "relative",
+              width: "90%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography sx={{}} variant="h5">
+              {`${profile?.firstName} ${profile?.lastName}`}
+            </Typography>
+            {profile?._id !== user?.result?._id && (
+              <IconButton
+                sx={{ position: "absolute", right: 0 }}
+                onClick={() => {
+                  navigate(`/messages?id=${profile._id}`);
+                }}
+              >
+                <Message />
+              </IconButton>
+            )}
+          </Box>
+        )}
         <hr width="90%" style={{ opacity: "60%" }}></hr>
         <br></br>
         <>
