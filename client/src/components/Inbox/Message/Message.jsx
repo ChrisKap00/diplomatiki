@@ -97,12 +97,12 @@ const Message = ({ message, withId }) => {
               justifyContent: "center",
             }}
           >
-            {message.file.type === "zip" ? <FolderZip /> : <InsertDriveFile />}
+            {message?.file.type === "zip" ? <FolderZip /> : <InsertDriveFile />}
             <Typography sx={{ marginLeft: "5px" }}>
-              {message.file.name}
+              {message?.file.name}
             </Typography>
           </Box>
-          <Typography>{message.file.size}</Typography>
+          <Typography>{message?.file.size}</Typography>
         </Box>
       )}
     </Box>

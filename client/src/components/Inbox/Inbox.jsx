@@ -1,4 +1,4 @@
-import { Send } from "@mui/icons-material";
+import { AttachFile, Image, Send } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -17,7 +17,14 @@ import Message from "./Message/Message";
 import Chat from "../Chat/Chat";
 import { useDispatch, useSelector } from "react-redux";
 import defaultPfp from "../../assets/defaultPfp.jpg";
-import { fetchInfoForChat, sendMessage } from "../../store/actions/messages";
+import {
+  fetchInfoForChat,
+  fetchMessages,
+  fetchPfp,
+  sendMessage,
+} from "../../store/actions/messages";
+import ReactImageFileToBase64 from "react-file-image-to-base64";
+import FileBase from "react-file-base64";
 
 const SendForm = styled("form")(({ theme }) => ({
   position: "relative",
@@ -43,7 +50,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   width: "100%",
 }));
 
-const Inbox = () => {
+const Inbox = ({ socket }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const [id, setId] = useState(null);
@@ -54,10 +61,31 @@ const Inbox = () => {
     file: null,
   });
   const messageRef = useRef();
-  const { messages, isLoadingMessages } = useSelector(
+  const { messages, isLoadingMessages, isLoadingSendMessage } = useSelector(
     (state) => state.messages
   );
   const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!messages.length) dispatch(fetchMessages(user?.result._id));
+  }, []);
+
+  useEffect(() => {
+    console.log(socket);
+    if (socket.current) {
+      console.log("IN IF");
+      socket?.current?.on("receive-msg", (message) => {
+        console.log(message);
+        dispatch({ type: "RECEIVE_MESSAGE", payload: message });
+        if (!messages.find((chat) => chat.withId === message.senderId))
+          dispatch(fetchPfp(message.senderId));
+        console.log(messages);
+        // const audio = new Audio("../../assets/message_notification.wav");
+        // audio.play();
+        // dispatch({ type: "ADD_RECEIVED_MESSAGE", payload: message });
+      });
+    }
+  }, [socket]);
 
   useEffect(() => {
     if (location.search) {
@@ -66,7 +94,7 @@ const Inbox = () => {
         (chat) => chat.withId === location.search.substring(4)
       );
       if (chat) {
-        setInfo({ pfp: chat.withPfp, name: chat.name });
+        setInfo({ pfp: chat.withPfp, name: chat.withName });
       } else {
         dispatch(fetchInfoForChat(location.search.substring(4), setInfo));
       }
@@ -153,21 +181,91 @@ const Inbox = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                paddingInline: "15px 10px",
+                paddingInline: "10px 10px",
                 backgroundColor: "rgba(0, 0, 0, 0.2)",
               }}
             >
+              {/* <Stack direction="row" gap={1} mt={2}> */}
+              <IconButton component="label" disabled={isLoadingSendMessage}>
+                <Image color="primary" />
+                <div style={{ display: "none" }}>
+                  <ReactImageFileToBase64
+                    multiple={false}
+                    onCompleted={(data) => {
+                      dispatch(
+                        sendMessage(
+                          {
+                            senderId: user.result._id,
+                            receiverId: id,
+                            message: {
+                              ...messageData,
+                              image: data[0].base64_file,
+                            },
+                            fetchChat:
+                              messages.filter((chat) => chat.withId === id)
+                                .length === 0,
+                          },
+                          info,
+                          socket
+                        )
+                      );
+                      setMessageData({ text: null, image: null, file: null });
+                      messageRef.current.firstChild.value = "";
+                    }}
+                  />
+                </div>
+              </IconButton>
+              <IconButton component="label" disabled={isLoadingSendMessage}>
+                <AttachFile color="primary" />
+                <div style={{ display: "none" }}>
+                  <FileBase
+                    multiple={false}
+                    onDone={(data) => {
+                      dispatch(
+                        sendMessage(
+                          {
+                            senderId: user.result._id,
+                            receiverId: id,
+                            message: {
+                              ...messageData,
+                              file: {
+                                base64: data.base64,
+                                name: data.name,
+                                size: data.size,
+                                type: data.type.substring(
+                                  data.type.indexOf("/") + 1
+                                ),
+                              },
+                            },
+                            fetchChat:
+                              messages.filter((chat) => chat.withId === id)
+                                .length === 0,
+                          },
+                          info,
+                          socket
+                        )
+                      );
+                      setMessageData({ text: null, image: null, file: null });
+                      messageRef.current.firstChild.value = "";
+                    }}
+                  />
+                </div>
+              </IconButton>
+              {/* </Stack> */}
               <SendForm
                 onSubmit={(e) => {
                   e.preventDefault();
                 }}
+                sx={{ pointerEvents: isLoadingSendMessage ? "none" : "auto" }}
               >
                 <StyledInputBase
                   placeholder="Write a message..."
                   inputProps={{ "aria-label": "search" }}
                   sx={{
                     backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    pointerEvents: isLoadingSendMessage ? "none" : "auto",
                   }}
+                  disabled={isLoadingSendMessage}
                   ref={messageRef}
                   onKeyDown={(e) => {
                     if (e.code === "Enter") {
@@ -177,12 +275,19 @@ const Inbox = () => {
                           {
                             senderId: user.result._id,
                             receiverId: id,
+                            senderName: `${user?.result.firstName} ${user?.result.lastName}`,
+                            sentAt: String(new Date()),
+                            counter: messages.find((chat) => chat.withId === id)
+                              ? messages.find((chat) => chat.withId === id).data
+                                  .length
+                              : 0,
                             message: messageData,
                             fetchChat:
                               messages.filter((chat) => chat.withId === id)
                                 .length === 0,
                           },
-                          info
+                          info,
+                          socket
                         )
                       );
                       e.target.value = "";
@@ -193,7 +298,33 @@ const Inbox = () => {
                     setMessageData({ ...messageData, text: e.target.value });
                   }}
                 />
-                <IconButton type="submit" sx={{ marginLeft: "10px" }}>
+                <IconButton
+                  type="submit"
+                  sx={{ marginLeft: "10px" }}
+                  onClick={() => {
+                    dispatch(
+                      sendMessage(
+                        {
+                          senderId: user.result._id,
+                          receiverId: id,
+                          message: messageData,
+                          fetchChat:
+                            messages.filter((chat) => chat.withId === id)
+                              .length === 0,
+                        },
+                        info
+                      )
+                    );
+                    setMessageData({ text: null, image: null, file: null });
+                    messageRef.current.firstChild.value = "";
+                  }}
+                  disabled={
+                    (messageData.text === null &&
+                      messageData.image === null &&
+                      messageData.file === null) ||
+                    isLoadingSendMessage
+                  }
+                >
                   <Send color="primary" />
                 </IconButton>
               </SendForm>

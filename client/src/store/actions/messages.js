@@ -11,15 +11,26 @@ export const fetchMessages = (userId) => async (dispatch) => {
   }
 };
 
-export const sendMessage = (messageData, info) => async (dispatch) => {
+export const sendMessage = (messageData, info, socket) => async (dispatch) => {
   dispatch({ type: "SHOW_TEMP_MESSAGE", payload: { messageData, info } });
   try {
+    socket.current.emit("send-msg", { ...messageData });
     const { data } = await api.sendMessage(messageData);
     console.log(data);
     dispatch({
       type: "SEND_MESSAGE",
       payload: { id: messageData.receiverId, data },
     });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const fetchPfp = (id) => async (dispatch) => {
+  try {
+    const { data } = await api.fetchPfp(id);
+    if (!data.error)
+      dispatch({ type: "FETCH_PFP", payload: { pfp: data.pfp, senderId: id } });
   } catch (error) {
     console.log(error);
   }

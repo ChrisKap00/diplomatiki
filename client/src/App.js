@@ -4,7 +4,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline, Paper, Stack } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import Auth from "./components/Auth/Auth";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Verification from "./components/Verification/Verification";
 import NavBar from "./components/NavBar/NavBar";
 import Home from "./components/Home/Home";
@@ -14,7 +14,10 @@ import Profile from "./components/Profile/Profile";
 import Inbox from "./components/Inbox/Inbox";
 import { fetchMessages } from "./store/actions/messages";
 
+import { io } from "socket.io-client";
+
 function App() {
+  const [socket, setSocket] = useState(useRef());
   const theme = useSelector((state) => state.theme);
   const { user } = useSelector((state) => state.auth);
 
@@ -23,15 +26,22 @@ function App() {
 
   if (!theme) dispatch({ type: "INITIALIZE_THEME" });
 
+  useEffect(() => {
+    if (!user) return;
+    setSocket({ ...socket, current: io("http://localhost:5000") });
+  }, [user?.result._id]);
+
+  useEffect(() => {
+    console.log(socket.current);
+    if (!socket.current) return;
+    socket.current.emit("add-user", user?.result?._id);
+  }, [socket]);
+
   const darkTheme = createTheme({
     palette: {
       mode: theme,
     },
   });
-
-  useEffect(() => {
-    dispatch(fetchMessages(user?.result._id));
-  }, []);
 
   useEffect(() => {
     dispatch({
@@ -76,7 +86,13 @@ function App() {
           <Route
             path="/messages"
             exact
-            element={!user ? <Navigate to="/auth" replace /> : <Inbox />}
+            element={
+              !user ? (
+                <Navigate to="/auth" replace />
+              ) : (
+                <Inbox socket={socket} />
+              )
+            }
           />
           <Route
             path="/auth"

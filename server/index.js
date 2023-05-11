@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
+import { Server } from "socket.io";
 
 import authRoutes from "./routes/auth.js";
 import groupRoutes from "./routes/groups.js";
@@ -35,3 +36,38 @@ mongoose.connect(
 const server = app.listen(PORT, () =>
   console.log(`Server running on port ${PORT}`)
 );
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    credentials: true,
+  },
+});
+
+// console.log(io);
+
+global.onlineUsers = new Map();
+
+// console.log(global);
+
+io.on("connection", (socket) => {
+  // console.log(socket);
+  console.log("user connected");
+  // global.socket = socket;
+  socket.on("add-user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+    console.log(onlineUsers);
+  });
+  socket.on("send-msg", (message) => {
+    console.log("message: ");
+    console.log(message);
+    const receiverSocket = onlineUsers.get(message.receiverId);
+    console.log("receiverSocket: ");
+    console.log(receiverSocket);
+    if (receiverSocket) {
+      console.log(`SENDING receive-msg to ${receiverSocket}`);
+      socket.to(receiverSocket).emit("receive-msg", message);
+    }
+    console.log(onlineUsers);
+  });
+});

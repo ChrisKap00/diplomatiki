@@ -1,7 +1,20 @@
-import { Box } from "@mui/material";
-import React from "react";
+import { Box, List } from "@mui/material";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Chat from "../../Chat/Chat";
+import { fetchMessages } from "../../../store/actions/messages";
 
 const MessagesBox = () => {
+  const { messages, isLoadingMessages } = useSelector(
+    (state) => state.messages
+  );
+  const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!messages.length) dispatch(fetchMessages(user?.result._id));
+  }, []);
+  
   return (
     <Box
       sx={{
@@ -10,7 +23,11 @@ const MessagesBox = () => {
         height: "100%",
       }}
     >
-      MessagesBox
+      <List sx={{ padding: 0 }}>
+        {messages?.map((e, index) => (
+          <Chat key={index} chat={e} />
+        ))}
+      </List>
     </Box>
   );
 };

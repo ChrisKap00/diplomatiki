@@ -183,6 +183,12 @@ const NavBar = () => {
             position: "absolute",
           }}
         >
+          <Link to="/">
+            <Avatar
+              src={require("../../assets/logo.png")}
+              sx={{ height: "45px", width: "45px" }}
+            ></Avatar>
+          </Link>
           <Search
           //   onSubmit={handleSearch}
           //   onChange={(e) => setSearch(e.target.value)}
@@ -266,7 +272,7 @@ const NavBar = () => {
             }}
           >
             <Avatar
-              src={user.pfp ? user.pfp : defaultPfp}
+              src={user?.result.pfp || defaultPfp}
               // sx={{ height: "30px", width: "30px" }}
               sx={{ height: "35px", width: "35px", aspectRatio: 1 }}
             />

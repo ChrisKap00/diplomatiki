@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const userSchema = mongoose.Schema({
   firstName: { type: String, required: true },
@@ -20,7 +20,15 @@ const userSchema = mongoose.Schema({
             senderId: String,
             text: String,
             image: String,
-            file: String,
+            file: {
+              type: new Schema({
+                base64: String,
+                name: String,
+                type: String,
+                size: String,
+              }),
+              required: false,
+            },
             sentAt: String,
             counter: String,
           },

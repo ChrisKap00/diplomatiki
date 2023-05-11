@@ -103,6 +103,16 @@ router.post("/sendMessage", async (req, res) => {
   }
 });
 
+router.get("/fetchPfp", async (req, res) => {
+  const { userId } = req.query;
+  try {
+    const user = await User.findById(userId);
+    res.status(200).json({ error: 0, pfp: user.pfp });
+  } catch (error) {
+    res.status(500).json({ error: 1 });
+  }
+});
+
 router.get("/fetchInfoForChat", async (req, res) => {
   try {
     const { userId } = req.query;

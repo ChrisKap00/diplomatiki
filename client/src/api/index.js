@@ -59,3 +59,4 @@ export const sendMessage = (messageData) =>
   API.post("messages/sendMessage", messageData);
 export const fetchInfoForChat = (userId) =>
   API.get(`/messages/fetchInfoForChat?userId=${userId}`);
+export const fetchPfp = (id) => API.get(`/messages/fetchPfp?userId=${id}`);
