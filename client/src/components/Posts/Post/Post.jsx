@@ -451,7 +451,7 @@ export default function Post({ post }) {
             >
               <Avatar
                 sx={{ height: "30px", width: "30px" }}
-                src={user?.result?.pfp}
+                src={user?.result?.pfp || defaultPfp}
               ></Avatar>
               <Box
                 sx={{

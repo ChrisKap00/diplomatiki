@@ -7,6 +7,10 @@ export default (
   action
 ) => {
   switch (action.type) {
+    case "START_LOADING_MESSAGES":
+      return { ...state, isLoadingMessages: true };
+    case "STOP_LOADING_MESSAGES":
+      return { ...state, isLoadingMessages: false };
     case "FETCH_MESSAGES":
       return {
         ...state,

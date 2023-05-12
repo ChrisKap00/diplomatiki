@@ -1,6 +1,7 @@
 import * as api from "../../api";
 
 export const fetchMessages = (userId) => async (dispatch) => {
+  dispatch({ type: "START_LOADING_MESSAGES" });
   try {
     const { data } = await api.fetchMessages(userId);
     console.log(data);
@@ -9,6 +10,7 @@ export const fetchMessages = (userId) => async (dispatch) => {
   } catch (error) {
     console.log(error);
   }
+  dispatch({ type: "STOP_LOADING_MESSAGES" });
 };
 
 export const sendMessage = (messageData, info, socket) => async (dispatch) => {

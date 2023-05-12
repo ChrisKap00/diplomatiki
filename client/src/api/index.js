@@ -18,6 +18,7 @@ export const verify = (token) => API.get(`/auth/verification/${token}`);
 export const changePfp = (data) => API.post("/profile/changePfp", data);
 export const fetchProfileInfo = (userId) =>
   API.get(`/profile/fetchProfileInfo?userId=${userId}`);
+export const fetchUsers = (query) => API.get(`/profile/search?query=${query}`);
 
 export const createGroup = ({ groupData, user }) =>
   API.post("groups/create", { groupData, user });

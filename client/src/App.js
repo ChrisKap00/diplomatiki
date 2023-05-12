@@ -15,6 +15,7 @@ import Inbox from "./components/Inbox/Inbox";
 import { fetchMessages } from "./store/actions/messages";
 
 import { io } from "socket.io-client";
+import Search from "./components/Search/Search";
 
 function App() {
   const [socket, setSocket] = useState(useRef());
@@ -93,6 +94,11 @@ function App() {
                 <Inbox socket={socket} />
               )
             }
+          />
+          <Route
+            path="/search"
+            exact
+            element={!user ? <Navigate to="/auth" replace /> : <Search />}
           />
           <Route
             path="/auth"

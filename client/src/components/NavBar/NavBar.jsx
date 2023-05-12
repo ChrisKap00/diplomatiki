@@ -18,6 +18,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import defaultPfp from "../../assets/defaultPfp.jpg";
 import {
+  Cancel,
+  Clear,
   Groups,
   Inbox,
   Logout,
@@ -35,19 +37,21 @@ const Search = styled("form")(({ theme }) => ({
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
   marginRight: theme.spacing(2),
-  marginLeft: 0,
+  marginLeft: theme.spacing(2),
   width: "100%",
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(3),
     width: "auto",
   },
+  display: "flex",
+  alignItems: "center",
 }));
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: "100%",
   position: "absolute",
-  pointerEvents: "none",
+  // pointerEvents: "none",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -57,7 +61,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
@@ -67,10 +70,19 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+const MobileSearch = styled(Box)(({ theme }) => ({
+  position: "relative",
+  borderRadius: "50%",
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  marginRight: theme.spacing(2),
+  marginLeft: theme.spacing(2),
+}));
+
 const NavBar = () => {
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const [search, setSearch] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const location = useLocation();
 
   const dispatch = useDispatch();
@@ -181,105 +193,181 @@ const NavBar = () => {
             width: "100%",
             minWidth: "100%",
             position: "absolute",
+            height: "100%",
           }}
         >
-          <Link to="/">
-            <Avatar
-              src={require("../../assets/logo.png")}
-              sx={{ height: "45px", width: "45px" }}
-            ></Avatar>
-          </Link>
-          <Search
-          //   onSubmit={handleSearch}
-          //   onChange={(e) => setSearch(e.target.value)}
-          >
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>
-          <Box sx={{ flexGrow: 1 }}></Box>
-          <Link to="/groups" style={{ textDecoration: "none", color: "white" }}>
-            <IconButton
-              size="large"
-              edge="end"
-              // aria-controls={menuId}
-              aria-haspopup="true"
-              // onClick={handleProfileMenuOpen}
-              color="inherit"
-              sx={{
-                marginLeft: "20px",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                padding: "20px",
-                height: "30px",
-                width: "30px",
+          {mobileSearchOpen ? (
+            <Search
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (search.trim() === "" || search.trim().length < 3) return;
+                navigate(`/search?q=${search.trim()}`);
               }}
             >
-              <Groups sx={{ fontSize: "30px" }} />
-            </IconButton>
-          </Link>
-          <IconButton
-            size="large"
-            edge="end"
-            // aria-controls={menuId}
-            aria-haspopup="true"
-            // onClick={handleProfileMenuOpen}
-            color="inherit"
-            sx={{
-              marginLeft: "25px",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              padding: "20px",
-              height: "30px",
-              width: "30px",
-            }}
-          >
-            <Inbox sx={{ fontSize: "100%" }} />
-          </IconButton>
-          <IconButton
-            size="large"
-            edge="end"
-            // aria-controls={menuId}
-            aria-haspopup="true"
-            // onClick={handleProfileMenuOpen}
-            color="inherit"
-            sx={{
-              marginLeft: "25px",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              padding: "20px",
-              height: "30px",
-              width: "30px",
-            }}
-          >
-            <Notifications sx={{ fontSize: "100%" }} />
-          </IconButton>
-          {/* <Box sx={{ flexGrow: 0.05 }}></Box> */}
-          <IconButton
-            size="large"
-            edge="end"
-            aria-controls={profileMenuId}
-            aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            color="inherit"
-            sx={{
-              marginLeft: "40px",
-              marginRight: "1px",
-              padding: 0,
-              height: "30px",
-              width: "30px",
-            }}
-          >
-            <Avatar
-              src={user?.result.pfp || defaultPfp}
-              // sx={{ height: "30px", width: "30px" }}
-              sx={{ height: "35px", width: "35px", aspectRatio: 1 }}
-            />
-          </IconButton>
-          <Typography marginLeft={1}>
-            {`${user?.result?.firstName} ${user?.result?.lastName}`}
-          </Typography>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                sx={{ width: "100%" }}
+                placeholder="Αναζήτηση..."
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+              />
+              <SearchIconWrapper sx={{ right: 0 }}>
+                <IconButton
+                  sx={{ cursor: "pointer", padding: 0 }}
+                  onClick={() => {
+                    setMobileSearchOpen(false);
+                    setSearch("");
+                  }}
+                >
+                  <Clear />
+                </IconButton>
+              </SearchIconWrapper>
+            </Search>
+          ) : (
+            <>
+              <Link to="/">
+                <Avatar
+                  src={require("../../assets/logo.png")}
+                  sx={{ height: "45px", width: "45px" }}
+                ></Avatar>
+              </Link>
+              <Search
+                //   onSubmit={handleSearch}
+                //   onChange={(e) => setSearch(e.target.value)}
+                sx={{
+                  display: { xs: "none", sm: "flex" },
+                }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (search.trim() === "" || search.trim().length < 3) return;
+                  navigate(`/search?q=${search.trim()}`);
+                }}
+              >
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search…"
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                />
+              </Search>
+              <Box
+                sx={{
+                  display: { xs: "flex", sm: "none" },
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "rgba(255, 255, 255, 0.15)",
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.25)" },
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                }}
+                p={1}
+                marginLeft={3}
+                marginRight={2}
+                component="div"
+                onClick={() => {
+                  setMobileSearchOpen(true);
+                }}
+              >
+                <SearchIcon />
+              </Box>
+              <Box sx={{ flexGrow: 1 }}></Box>
+              <Link
+                to="/groups"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                <IconButton
+                  size="large"
+                  edge="end"
+                  // aria-controls={menuId}
+                  aria-haspopup="true"
+                  // onClick={handleProfileMenuOpen}
+                  color="inherit"
+                  sx={{
+                    marginLeft: "20px",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    padding: "20px",
+                    height: "30px",
+                    width: "30px",
+                  }}
+                >
+                  <Groups sx={{ fontSize: "30px" }} />
+                </IconButton>
+              </Link>
+              <Link
+                to="/messages"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                <IconButton
+                  size="large"
+                  edge="end"
+                  // aria-controls={menuId}
+                  aria-haspopup="true"
+                  // onClick={handleProfileMenuOpen}
+                  color="inherit"
+                  sx={{
+                    marginLeft: "25px",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    padding: "20px",
+                    height: "30px",
+                    width: "30px",
+                  }}
+                >
+                  <Inbox sx={{ fontSize: "100%" }} />
+                </IconButton>
+              </Link>
+              <IconButton
+                size="large"
+                edge="end"
+                // aria-controls={menuId}
+                aria-haspopup="true"
+                // onClick={handleProfileMenuOpen}
+                color="inherit"
+                sx={{
+                  marginLeft: "25px",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  padding: "20px",
+                  height: "30px",
+                  width: "30px",
+                }}
+              >
+                <Notifications sx={{ fontSize: "100%" }} />
+              </IconButton>
+              {/* <Box sx={{ flexGrow: 0.05 }}></Box> */}
+              <IconButton
+                size="large"
+                edge="end"
+                aria-controls={profileMenuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+                sx={{
+                  marginLeft: "40px",
+                  marginRight: "1px",
+                  padding: 0,
+                  height: "30px",
+                  width: "30px",
+                }}
+              >
+                <Avatar
+                  src={user?.result.pfp || defaultPfp}
+                  // sx={{ height: "30px", width: "30px" }}
+                  sx={{ height: "35px", width: "35px", aspectRatio: 1 }}
+                />
+              </IconButton>
+              <Typography
+                marginLeft={1}
+                sx={{ display: { xs: "none", md: "block" } }}
+              >
+                {`${user?.result?.firstName} ${user?.result?.lastName}`}
+              </Typography>
+            </>
+          )}
         </Toolbar>
       </AppBar>
       {renderMenu}

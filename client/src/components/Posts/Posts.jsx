@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Fab } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import testImage from "../../assets/login_bg.jpg";
 import Create from "./Create/Create";
@@ -6,8 +6,9 @@ import Post from "./Post/Post";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingPost from "../LoadingPost/LoadingPost";
 import { fetchPosts } from "../../store/actions/posts";
+import { Group } from "@mui/icons-material";
 
-const Posts = () => {
+const Posts = ({ open, setOpen }) => {
   const { isLoading, data, lastFetched } = useSelector((state) => state.posts);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -51,26 +52,48 @@ const Posts = () => {
   }, [scrollHeight]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        // backgroundColor: "blue",
-        width: "100%",
-      }}
-      flex={5}
-      p={2}
-    >
-      <Create />
-      <>
-        {data.map((post, index) => (
-          <Post key={index} post={post} />
-        ))}
-        {!lastFetched && <LoadingPost />}
-        {!lastFetched && <LoadingPost />}
-      </>
-    </Box>
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          // backgroundColor: "blue",
+          width: "100%",
+        }}
+        flex={5}
+        p={2}
+      >
+        <Create />
+        <>
+          {data.map((post, index) => (
+            <Post key={index} post={post} />
+          ))}
+          {!lastFetched && <LoadingPost />}
+          {!lastFetched && <LoadingPost />}
+        </>
+      </Box>
+      {/* <Box> */}
+      <Fab
+        color="primary"
+        sx={{
+          display: {
+            xs: "auto",
+            lg: "none",
+          },
+          position: "fixed",
+          bottom: "20px",
+          right: { xs: "20px", sm: "90px", md: "120px" },
+          // right: "20px",
+        }}
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        <Group />
+      </Fab>
+      {/* </Box> */}
+    </>
   );
 };
 

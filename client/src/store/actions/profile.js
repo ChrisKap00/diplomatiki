@@ -30,3 +30,15 @@ export const fetchProfileInfo = (userId, setProfile) => async (dispatch) => {
     console.log(error);
   }
 };
+
+export const fetchUsers = (query, setUsers) => async (dispatch) => {
+  try {
+    const { data } = await api.fetchUsers(query);
+    console.log(data);
+    if (!data.error) {
+      setUsers(data.users);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

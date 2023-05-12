@@ -50,4 +50,37 @@ router.get("/fetchProfileInfo", async (req, res) => {
   }
 });
 
+router.get("/search", async (req, res) => {
+  try {
+    const { query } = req.query;
+    console.log(query);
+    User.aggregate([
+      {
+        $project: {
+          name: { $concat: ["$firstName", " ", "$lastName"] },
+          pfp: "$pfp",
+        },
+      },
+      {
+        $match: { name: RegExp(query, "i") },
+      },
+    ]).exec((error, result) => {
+      return res.status(200).json({ error: 0, users: result.splice(0, 24) });
+    });
+    // res.status(200).json({
+    //   error: 0,
+    //   users: users
+    //     .map((user) => ({
+    //       _id: user._id,
+    //       name: `${user.firstName} ${user.lastName}`,
+    //       pfp: user.pfp,
+    //     }))
+    //     .splice(0, 24),
+    // });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
 export default router;

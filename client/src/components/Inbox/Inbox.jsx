@@ -1,9 +1,17 @@
-import { AttachFile, Image, Send } from "@mui/icons-material";
+import {
+  ArrowBack,
+  AttachFile,
+  Image,
+  InboxOutlined,
+  InboxRounded,
+  Send,
+} from "@mui/icons-material";
 import {
   Avatar,
   Box,
   Card,
   CardHeader,
+  CircularProgress,
   IconButton,
   InputBase,
   List,
@@ -12,7 +20,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Message from "./Message/Message";
 import Chat from "../Chat/Chat";
 import { useDispatch, useSelector } from "react-redux";
@@ -55,6 +63,10 @@ const Inbox = ({ socket }) => {
   const dispatch = useDispatch();
   const [id, setId] = useState(null);
   const [info, setInfo] = useState(null);
+  const [mobileChatsOpen, setMobileChatsOpen] = useState(
+    !location.search.substring(4)
+  );
+  const navigate = useNavigate();
   const [messageData, setMessageData] = useState({
     text: null,
     image: null,
@@ -102,6 +114,10 @@ const Inbox = ({ socket }) => {
   }, [location]);
 
   useEffect(() => {
+    setMobileChatsOpen(location.search.substring(4) ? false : true);
+  }, [location]);
+
+  useEffect(() => {
     const topPos = document.getElementById("dummy").offsetTop;
     document.getElementById("scrollBox").scrollTop = topPos;
   }, [messages]);
@@ -125,16 +141,40 @@ const Inbox = ({ socket }) => {
       >
         <Stack direction="row" sx={{ width: "100%" }}>
           <Box
-            sx={{ borderRight: "1px solid rgba(255, 255, 255, 0.1)" }}
+            sx={{
+              borderRight: "1px solid rgba(255, 255, 255, 0.1)",
+              display: {
+                xs: mobileChatsOpen
+                  ? isLoadingMessages
+                    ? " flex"
+                    : "block"
+                  : "none",
+                lg: isLoadingMessages ? " flex" : "block",
+              },
+              alignItems: "center",
+              justifyContent: "center",
+            }}
             flex={2}
           >
-            <List sx={{ padding: 0 }}>
-              {messages?.map((e, index) => (
-                <Chat key={index} chat={e} />
-              ))}
-            </List>
+            {isLoadingMessages ? (
+              <CircularProgress />
+            ) : (
+              <List sx={{ padding: 0 }}>
+                {messages?.map((e, index) => (
+                  <Chat key={index} chat={e} />
+                ))}
+              </List>
+            )}
           </Box>
-          <Box flex={3.5}>
+          <Box
+            flex={3.5}
+            sx={{
+              display: {
+                xs: !mobileChatsOpen ? "block" : "none",
+                lg: "block",
+              },
+            }}
+          >
             {id && (
               <Box
                 sx={{
@@ -144,6 +184,18 @@ const Inbox = ({ socket }) => {
                   alignItems: "center",
                 }}
               >
+                <IconButton
+                  sx={{
+                    marginRight: "15px",
+                    display: { sx: "block", lg: "none" },
+                    // padding: 0,
+                  }}
+                  onClick={() => {
+                    navigate("/messages");
+                  }}
+                >
+                  <ArrowBack />
+                </IconButton>
                 <Avatar
                   src={info?.pfp || defaultPfp}
                   sx={{ marginRight: "10px" }}
@@ -154,7 +206,16 @@ const Inbox = ({ socket }) => {
               </Box>
             )}
             <Box
-              sx={{ height: "calc(100% - 106px)", overflow: "auto" }}
+              sx={{
+                height: location.search ? "calc(100% - 106px)" : "100%",
+                overflow: "auto",
+                display:
+                  isLoadingMessages || !location.search.substring(4)
+                    ? "flex"
+                    : "block",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
               component="div"
               id="scrollBox"
               onLoad={() => {
@@ -162,23 +223,33 @@ const Inbox = ({ socket }) => {
                 document.getElementById("scrollBox").scrollTop = topPos;
               }}
             >
-              {id !== null &&
-                messages
-                  ?.find((e) => e.withId === id)
-                  ?.data?.map((message, index) => (
-                    <Message
-                      key={index}
-                      message={message}
-                      withId={messages?.find((el) => el.withId === id)?.withId}
-                    />
-                  ))}
+              {!location.search.substring(4) ? (
+                <InboxRounded sx={{ fontSize: "4rem" }} />
+              ) : isLoadingMessages ? (
+                <CircularProgress></CircularProgress>
+              ) : (
+                <>
+                  {id !== null &&
+                    messages
+                      ?.find((e) => e.withId === id)
+                      ?.data?.map((message, index) => (
+                        <Message
+                          key={index}
+                          message={message}
+                          withId={
+                            messages?.find((el) => el.withId === id)?.withId
+                          }
+                        />
+                      ))}
+                </>
+              )}
             </Box>
             <div id="dummy"></div>
             <Box
               sx={{
                 width: "100%",
                 height: "50px",
-                display: "flex",
+                display: location.search.substring(4) ? "flex" : "none",
                 alignItems: "center",
                 justifyContent: "space-between",
                 paddingInline: "10px 10px",

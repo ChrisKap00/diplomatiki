@@ -2,6 +2,7 @@ import { FolderZip, InsertDriveFile } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
+import File from "../../File/File";
 
 const Message = ({ message, withId }) => {
   const { user } = useSelector((state) => state.auth);
@@ -55,55 +56,7 @@ const Message = ({ message, withId }) => {
           ></img>
         </Box>
       ) : (
-        <Box
-          sx={{
-            position: "absolute",
-            marginLeft: message.senderId !== withId ? "auto" : "0",
-            maxWidth: "50%",
-            backgroundColor: "rgba(255, 255, 255, 0.08)",
-            borderRadius: "10px",
-            padding: "0.5rem 1rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            cursor: "pointer",
-            position: "relative",
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.15)",
-            },
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              // backgroundColor: "red",
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              borderRadius: "10px",
-            }}
-            onClick={() => {
-              const anchor = document.createElement("a");
-              anchor.download = message.file.name;
-              anchor.href = message.file.base64;
-              anchor.click();
-            }}
-          ></div>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {message?.file.type === "zip" ? <FolderZip /> : <InsertDriveFile />}
-            <Typography sx={{ marginLeft: "5px" }}>
-              {message?.file.name}
-            </Typography>
-          </Box>
-          <Typography>{message?.file.size}</Typography>
-        </Box>
+        <File file={message.file} senderId={message.senderId} withId={withId} />
       )}
     </Box>
   );

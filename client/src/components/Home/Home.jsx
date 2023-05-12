@@ -1,5 +1,5 @@
 import { Box, Stack } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroups } from "../../store/actions/groups";
 import Messages from "../Messages/Messages";
@@ -8,6 +8,7 @@ import Posts from "../Posts/Posts";
 
 const Home = () => {
   const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchGroups());
@@ -19,8 +20,8 @@ const Home = () => {
       justifyContent="space-between"
       sx={{ width: "100%" }}
     >
-      <MyGroups />
-      <Posts />
+      <MyGroups open={open} setOpen={setOpen}/>
+      <Posts open={open} setOpen={setOpen}/>
       <Messages />
     </Stack>
   );

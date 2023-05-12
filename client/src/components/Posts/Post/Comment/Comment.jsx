@@ -83,7 +83,7 @@ const Comment = ({ comment, postId }) => {
   const dispatch = useDispatch();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const [repliesOpen, setRepliesOpen] = useState(true);
+  const [repliesOpen, setRepliesOpen] = useState(false);
   const [images, setImages] = useState(null);
 
   const [shiftHeld, setShiftHeld] = useState(false);
@@ -551,7 +551,7 @@ const Comment = ({ comment, postId }) => {
             >
               <Avatar
                 sx={{ height: "30px", width: "30px" }}
-                src={user?.result?.pfp}
+                src={user?.result?.pfp || defaultPfp}
               ></Avatar>
               <Box
                 sx={{
