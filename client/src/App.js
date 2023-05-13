@@ -12,7 +12,7 @@ import Group from "./components/Group/Group";
 import AllGroups from "./components/AllGroups/AllGroups";
 import Profile from "./components/Profile/Profile";
 import Inbox from "./components/Inbox/Inbox";
-import { fetchMessages } from "./store/actions/messages";
+import { fetchMessages, fetchPfp } from "./store/actions/messages";
 
 import { io } from "socket.io-client";
 import Search from "./components/Search/Search";
@@ -21,6 +21,7 @@ function App() {
   const [socket, setSocket] = useState(useRef());
   const theme = useSelector((state) => state.theme);
   const { user } = useSelector((state) => state.auth);
+  const { messages } = useSelector((state) => state.messages);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -33,10 +34,28 @@ function App() {
   }, [user?.result._id]);
 
   useEffect(() => {
-    console.log(socket.current);
+    console.log("HERE");
     if (!socket.current) return;
-    socket.current.emit("add-user", user?.result?._id);
+    console.log(socket.current);
+    socket.current.emit("add-user", user?.result._id);
+    socket.current.on("receive-msg", (message) => {
+      console.log(message);
+      dispatch({ type: "RECEIVE_MESSAGE", payload: message });
+      if (!messages.find((chat) => chat.withId === message.senderId))
+        dispatch(fetchPfp(message.senderId));
+      // const audio = new Audio("../../assets/message_notification.wav");
+      // audio.play();
+      // dispatch({ type: "ADD_RECEIVED_MESSAGE", payload: message });
+    });
+    socket.current.on("receive-notification", (notification) => {
+      console.log(notification);
+      // dispatch({ type: "RECEIVE_NOTIFICATION", payload: notification });
+    });
   }, [socket]);
+
+  useEffect(() => {
+    console.log(socket.current);
+  }, [location]);
 
   const darkTheme = createTheme({
     palette: {

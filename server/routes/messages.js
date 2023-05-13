@@ -53,7 +53,7 @@ router.post("/sendMessage", async (req, res) => {
         image: message.image,
         file: message.file,
         sentAt,
-        counter: senderChat.data.length,
+        counter,
       });
     }
     await User.findByIdAndUpdate(senderId, sender, { new: true });
@@ -79,14 +79,14 @@ router.post("/sendMessage", async (req, res) => {
         ],
       });
     } else {
-      counter = senderChat.data.length;
+      counter = receiverChat.data.length;
       receiverChat.data.push({
         senderId: senderId,
         text: message.text,
         image: message.image,
         file: message.file,
         sentAt,
-        counter: receiverChat.data.length,
+        counter,
       });
     }
     await User.findByIdAndUpdate(receiverId, receiver, { new: true });
@@ -95,6 +95,23 @@ router.post("/sendMessage", async (req, res) => {
       //   ? { error: 0, chat: sender.messages.find((c) => c.withId === receiverId) }
       //   :
       { error: 0, sentAt, counter };
+    const receiverSocket = onlineUsers.get(receiverId);
+    console.log(receiverSocket);
+    if (receiverSocket) {
+      console.log(`SENDING receive-msg to ${receiverSocket}`);
+      // console.log(global.socket);
+      global.sockets
+        .find((socket) => socket.id === onlineUsers.get(senderId))
+        .to(receiverSocket)
+        .emit("receive-msg", {
+          senderId: senderId,
+          text: message.text,
+          image: message.image,
+          file: message.file,
+          sentAt,
+          counter,
+        });
+    }
     res.status(200).json(resObj);
   } catch (error) {
     console.log(error);

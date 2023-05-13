@@ -83,23 +83,6 @@ const Inbox = ({ socket }) => {
   }, []);
 
   useEffect(() => {
-    console.log(socket);
-    if (socket.current) {
-      console.log("IN IF");
-      socket?.current?.on("receive-msg", (message) => {
-        console.log(message);
-        dispatch({ type: "RECEIVE_MESSAGE", payload: message });
-        if (!messages.find((chat) => chat.withId === message.senderId))
-          dispatch(fetchPfp(message.senderId));
-        console.log(messages);
-        // const audio = new Audio("../../assets/message_notification.wav");
-        // audio.play();
-        // dispatch({ type: "ADD_RECEIVED_MESSAGE", payload: message });
-      });
-    }
-  }, [socket]);
-
-  useEffect(() => {
     if (location.search) {
       setId(location.search.substring(4));
       const chat = messages.find(
@@ -347,11 +330,6 @@ const Inbox = ({ socket }) => {
                             senderId: user.result._id,
                             receiverId: id,
                             senderName: `${user?.result.firstName} ${user?.result.lastName}`,
-                            sentAt: String(new Date()),
-                            counter: messages.find((chat) => chat.withId === id)
-                              ? messages.find((chat) => chat.withId === id).data
-                                  .length
-                              : 0,
                             message: messageData,
                             fetchChat:
                               messages.filter((chat) => chat.withId === id)

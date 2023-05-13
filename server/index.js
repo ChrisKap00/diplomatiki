@@ -47,27 +47,41 @@ const io = new Server(server, {
 // console.log(io);
 
 global.onlineUsers = new Map();
+global.sockets = [];
 
 // console.log(global);
 
 io.on("connection", (socket) => {
   // console.log(socket);
   console.log("user connected");
-  // global.socket = socket;
+  global.sockets.push(socket);
   socket.on("add-user", (userId) => {
+    global.sockets.find((s) => s.id === socket.id).data.userId = userId;
     onlineUsers.set(userId, socket.id);
+    // console.log(socket.id);
+    console.log(global.sockets.map((s) => s.id));
     console.log(onlineUsers);
   });
-  socket.on("send-msg", (message) => {
-    console.log("message: ");
-    console.log(message);
-    const receiverSocket = onlineUsers.get(message.receiverId);
-    console.log("receiverSocket: ");
-    console.log(receiverSocket);
-    if (receiverSocket) {
-      console.log(`SENDING receive-msg to ${receiverSocket}`);
-      socket.to(receiverSocket).emit("receive-msg", message);
-    }
+  socket.on("disconnect", () => {
+    // console.log("user " + onlineUsers.get(socket.id) + " disconnected");
+    console.log("user disconnected");
+    global.onlineUsers.delete(
+      global.sockets.find((s) => s.id === socket.id).data.userId
+    );
+    global.sockets = global.sockets.filter((s) => s.id !== socket.id);
+    console.log(global.sockets.map((s) => s.id));
     console.log(onlineUsers);
   });
+  // socket.on("send-msg", (message) => {
+  //   console.log("message: ");
+  //   console.log(message);
+  //   const receiverSocket = onlineUsers.get(message.receiverId);
+  //   console.log("receiverSocket: ");
+  //   console.log(receiverSocket);
+  //   if (receiverSocket) {
+  //     console.log(`SENDING receive-msg to ${receiverSocket}`);
+  //     socket.to(receiverSocket).emit("receive-msg", message);
+  //   }
+  //   console.log(onlineUsers);
+  // });
 });

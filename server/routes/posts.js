@@ -37,6 +37,7 @@ router.post("/post", async (req, res) => {
     const user = await User.findById(userId);
     user.posts.push({ postId: result._id, groupId });
     await User.findByIdAndUpdate(userId, user, { new: true });
+    console.log(global.onlineUsers);
     res.status(200).json({ error: 0, postId: result._id, postedAt });
   } catch (error) {
     console.log(error);

@@ -105,9 +105,9 @@ export default (
                       ...chat.data,
                       {
                         senderId: action.payload.senderId,
-                        text: action.payload.message.text,
-                        image: action.payload.message.image,
-                        file: action.payload.message.file,
+                        text: action.payload.text,
+                        image: action.payload.image,
+                        file: action.payload.file,
                         sentAt: action.payload.sentAt,
                         counter: action.payload.counter,
                       },

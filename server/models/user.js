@@ -37,6 +37,10 @@ const userSchema = mongoose.Schema({
     ],
     default: [],
   },
+  notifications: {
+    type: [{ text: String, link: String, unread: Boolean }],
+    default: [],
+  },
 });
 
 const User = mongoose.model("User", userSchema);
