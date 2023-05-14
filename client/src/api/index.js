@@ -19,6 +19,10 @@ export const changePfp = (data) => API.post("/profile/changePfp", data);
 export const fetchProfileInfo = (userId) =>
   API.get(`/profile/fetchProfileInfo?userId=${userId}`);
 export const fetchUsers = (query) => API.get(`/profile/search?query=${query}`);
+export const readNotifications = (userId) =>
+  API.patch(`/profile/readNotifications?userId=${userId}`);
+export const fetchNotifications = (userId) =>
+  API.get(`/profile/fetchNotifications?userId=${userId}`);
 
 export const createGroup = ({ groupData, user }) =>
   API.post("groups/create", { groupData, user });

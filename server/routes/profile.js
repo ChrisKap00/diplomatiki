@@ -83,4 +83,34 @@ router.get("/search", async (req, res) => {
   }
 });
 
+router.patch("/readNotifications", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    console.log(userId);
+    const user = await User.findById(userId);
+    for (let notification of user.notifications) {
+      notification.unread = false;
+    }
+    await User.findByIdAndUpdate(userId, user, { new: true });
+    res.status(200).json({ error: 0 });
+  } catch (error) {
+    res.status(500).json({ error: 1 });
+  }
+});
+
+router.get("/fetchNotifications", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    // console.log(userId);
+    const user = await User.findById(userId);
+    // for (let notification of user.notifications) {
+    //   notification.unread = false;
+    // }
+    // await User.findByIdAndUpdate(userId, user, { new: true });
+    res.status(200).json({ error: 0, notifications: user.notifications });
+  } catch (error) {
+    res.status(500).json({ error: 1 });
+  }
+});
+
 export default router;

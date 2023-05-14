@@ -16,6 +16,7 @@ import { fetchMessages, fetchPfp } from "./store/actions/messages";
 
 import { io } from "socket.io-client";
 import Search from "./components/Search/Search";
+import { fetchNotifications } from "./store/actions/profile";
 
 function App() {
   const [socket, setSocket] = useState(useRef());
@@ -31,6 +32,13 @@ function App() {
   useEffect(() => {
     if (!user) return;
     setSocket({ ...socket, current: io("http://localhost:5000") });
+    // console.log(
+    //   user.result.notifications.filter((notification) => notification.unread)[
+    //     user.result.notifications.filter((notification) => notification.unread)
+    //       .length - 1
+    //   ] || undefined
+    // );
+    dispatch(fetchNotifications(user.result._id));
   }, [user?.result._id]);
 
   useEffect(() => {
@@ -49,7 +57,7 @@ function App() {
     });
     socket.current.on("receive-notification", (notification) => {
       console.log(notification);
-      // dispatch({ type: "RECEIVE_NOTIFICATION", payload: notification });
+      dispatch({ type: "RECEIVE_NOTIFICATION", payload: notification });
     });
   }, [socket]);
 

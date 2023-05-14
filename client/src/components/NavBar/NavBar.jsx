@@ -1,6 +1,7 @@
 import {
   AppBar,
   Avatar,
+  Badge,
   Box,
   Divider,
   IconButton,
@@ -28,6 +29,7 @@ import {
   PersonAdd,
   Settings,
 } from "@mui/icons-material";
+import { readNotifications } from "../../store/actions/profile";
 
 const Search = styled("form")(({ theme }) => ({
   position: "relative",
@@ -80,10 +82,12 @@ const MobileSearch = styled(Box)(({ theme }) => ({
 
 const NavBar = () => {
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const [search, setSearch] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const location = useLocation();
+  const { isLoadingReadNotifications } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -176,6 +180,119 @@ const NavBar = () => {
         </ListItemIcon>
         Logout
       </MenuItem>
+    </Menu>
+  );
+
+  const notificationsMenuId = "primary-search-account-menu";
+  const isNotificationsMenuOpen = Boolean(notificationsAnchorEl);
+  const handleNotificationsMenuOpen = (event) => {
+    setNotificationsAnchorEl(event.currentTarget);
+    if (
+      isLoadingReadNotifications ||
+      !user?.result.notifications.filter(
+        (notification) => notification.unreadClient
+      ).length
+    )
+      return;
+    dispatch(readNotifications(user?.result._id));
+  };
+  const handleNotificationsMenuClose = () => {
+    setNotificationsAnchorEl(null);
+    console.log(
+      user?.result.notifications.filter(
+        (notification) => notification.unreadClient
+      ).length
+    );
+    if (
+      user?.result.notifications.filter(
+        (notification) => notification.unreadClient
+      ).length === 0
+    )
+      return;
+    dispatch({ type: "READ_NOTIFICATIONS_CLIENT" });
+  };
+  const renderNotificationsMenu = (
+    <Menu
+      anchorEl={notificationsAnchorEl}
+      id="account-notifications"
+      open={isNotificationsMenuOpen}
+      onClose={handleNotificationsMenuClose}
+      PaperProps={{
+        elevation: 0,
+        sx: {
+          overflow: "visible",
+          filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+          maxHeight: "300px",
+          padding: 0,
+          mt: 1.5,
+          "& .MuiAvatar-root": {
+            width: 32,
+            height: 32,
+            ml: -0.5,
+            mr: 1,
+          },
+          "&:before": {
+            content: '""',
+            display: "block",
+            position: "absolute",
+            top: 0,
+            right: 14,
+            width: 10,
+            height: 10,
+            bgcolor: "background.paper",
+            transform: "translateY(-50%) rotate(45deg)",
+            zIndex: 100,
+          },
+        },
+      }}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+    >
+      <Box
+        sx={{
+          overflowY: "auto",
+          overflowX: "none",
+          maxHeight: "292px",
+          width: "310px",
+        }}
+      >
+        {user?.result.notifications.map((notification, index) => (
+          // <MenuItem
+          //   key={index}
+          // >
+          <Box
+            sx={{
+              margin: 0,
+              width: "300px",
+              // backgroundColor: "red",
+              overflowX: "none",
+              wordBreak: "break-word",
+              padding: "0.2rem 0.5rem",
+              "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.15)" },
+              cursor: "pointer",
+              borderTop:
+                index === 0 ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+            component="div"
+            key={index}
+            onClick={() => {
+              handleNotificationsMenuClose();
+              navigate(notification.link);
+            }}
+          >
+            <Typography
+              sx={{
+                width: "fit-content",
+                wordBreak: "break-word",
+                fontWeight: notification.unreadClient ? "600" : "auto",
+              }}
+            >
+              {notification.text}
+            </Typography>
+          </Box>
+          // </MenuItem>
+        ))}
+      </Box>
     </Menu>
   );
 
@@ -279,29 +396,12 @@ const NavBar = () => {
               <Box sx={{ flexGrow: 1 }}></Box>
               <Link
                 to="/groups"
-                style={{ textDecoration: "none", color: "white" }}
-              >
-                <IconButton
-                  size="large"
-                  edge="end"
-                  // aria-controls={menuId}
-                  aria-haspopup="true"
-                  // onClick={handleProfileMenuOpen}
-                  color="inherit"
-                  sx={{
-                    marginLeft: "20px",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    padding: "20px",
-                    height: "30px",
-                    width: "30px",
-                  }}
-                >
-                  <Groups sx={{ fontSize: "30px" }} />
-                </IconButton>
-              </Link>
-              <Link
-                to="/messages"
-                style={{ textDecoration: "none", color: "white" }}
+                style={{
+                  textDecoration: "none",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                }}
               >
                 <IconButton
                   size="large"
@@ -318,26 +418,73 @@ const NavBar = () => {
                     width: "30px",
                   }}
                 >
-                  <Inbox sx={{ fontSize: "100%" }} />
+                  <Groups
+                    sx={{
+                      fontSize: "27px",
+                    }}
+                  />
                 </IconButton>
               </Link>
-              <IconButton
-                size="large"
-                edge="end"
-                // aria-controls={menuId}
-                aria-haspopup="true"
-                // onClick={handleProfileMenuOpen}
-                color="inherit"
-                sx={{
-                  marginLeft: "25px",
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  padding: "20px",
-                  height: "30px",
-                  width: "30px",
+              <Link
+                to="/messages"
+                style={{
+                  textDecoration: "none",
+                  color: "white",
                 }}
               >
-                <Notifications sx={{ fontSize: "100%" }} />
-              </IconButton>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  // aria-controls={menuId}
+                  aria-haspopup="true"
+                  // onClick={handleProfileMenuOpen}
+                  color="inherit"
+                  sx={{
+                    marginLeft: "25px",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    padding: "20px",
+                    height: "30px",
+                    width: "30px",
+                  }}
+                >
+                  <Inbox
+                    sx={{
+                      fontSize: "27px",
+                    }}
+                  />
+                </IconButton>
+              </Link>
+              <Badge
+                badgeContent={
+                  user?.result.notifications.filter(
+                    (notification) => notification.unreadClient
+                  ).length
+                }
+                color="error"
+                max={9}
+                // variant
+              >
+                <IconButton
+                  aria-controls={notificationsMenuId}
+                  aria-haspopup="true"
+                  onClick={handleNotificationsMenuOpen}
+                  // color="inherit"
+                  sx={{
+                    marginLeft: "25px",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    padding: "20px",
+                    height: "30px",
+                    width: "30px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Notifications
+                    sx={{ fontSize: "27px" }}
+                    // size="large"
+                    // edge="end"
+                  />
+                </IconButton>
+              </Badge>
               {/* <Box sx={{ flexGrow: 0.05 }}></Box> */}
               <IconButton
                 size="large"
@@ -371,6 +518,7 @@ const NavBar = () => {
         </Toolbar>
       </AppBar>
       {renderMenu}
+      {renderNotificationsMenu}
     </>
   );
 };

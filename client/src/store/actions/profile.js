@@ -42,3 +42,31 @@ export const fetchUsers = (query, setUsers) => async (dispatch) => {
     console.log(error);
   }
 };
+
+export const readNotifications = (userId) => async (dispatch) => {
+  dispatch({ type: "START_LOADING_READ_NOTIFICATIONS" });
+  try {
+    const { data } = await api.readNotifications(userId);
+    console.log(data);
+    if (!data.error) {
+      dispatch({ type: "READ_NOTIFICATIONS" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  dispatch({ type: "STOP_LOADING_READ_NOTIFICATIONS" });
+};
+
+export const fetchNotifications = (userId) => async (dispatch) => {
+  dispatch({ type: "START_LOADING_FETCH_NOTIFICATIONS" });
+  try {
+    const { data } = await api.fetchNotifications(userId);
+    console.log(data);
+    if (!data.error) {
+      dispatch({ type: "FETCH_NOTIFICATIONS", payload: data.notifications });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  dispatch({ type: "STOP_LOADING_FETCH_NOTIFICATIONS" });
+};

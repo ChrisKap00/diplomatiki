@@ -37,8 +37,35 @@ router.post("/post", async (req, res) => {
     const user = await User.findById(userId);
     user.posts.push({ postId: result._id, groupId });
     await User.findByIdAndUpdate(userId, user, { new: true });
-    console.log(global.onlineUsers);
     res.status(200).json({ error: 0, postId: result._id, postedAt });
+
+    console.log(global.onlineUsers);
+
+    const notificationUsers = (await User.find({ groups: groupId })).filter(
+      (u) => String(u._id) !== userId
+    );
+    console.log(notificationUsers.map((u) => u._id));
+
+    for (let i in notificationUsers) {
+      notificationUsers[i].notifications.push({
+        text: `Ο χρήστης ${userName} δημοσίευσε στην ομάδα ${groupName}.`,
+        link: `/group/${groupId}`,
+        unread: true,
+      });
+      await User.findByIdAndUpdate(
+        String(notificationUsers[i]._id),
+        notificationUsers[i],
+        { new: true }
+      );
+      global.sockets
+        .find((socket) => socket.id === onlineUsers.get(userId))
+        .to(onlineUsers.get(String(notificationUsers[i]._id)))
+        .emit("receive-notification", {
+          text: `Ο χρήστης ${userName} δημοσίευσε στην ομάδα ${groupName}.`,
+          link: `/group/${groupId}`,
+          unread: true,
+        });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
