@@ -60,7 +60,7 @@ router.post("/post", async (req, res) => {
       global.sockets
         .find((socket) => socket.id === onlineUsers.get(userId))
         .to(onlineUsers.get(String(notificationUsers[i]._id)))
-        .emit("receive-notification", {
+        .emit("notification", {
           text: `Ο χρήστης ${userName} δημοσίευσε στην ομάδα ${groupName}.`,
           link: `/group/${groupId}`,
           unread: true,
@@ -184,13 +184,38 @@ router.patch("/like", async (req, res) => {
 
     const post = await Post.findById(postId);
 
-    if (post.likes.includes(userId))
+    let type;
+
+    if (post.likes.includes(userId)) {
       post.likes = post.likes.filter((id) => id !== userId);
-    else post.likes.push(userId);
+      type = "unlike";
+    } else {
+      post.likes.push(userId);
+      type = "like";
+    }
 
     await Post.findByIdAndUpdate(postId, post, { new: true });
     res.status(200).json({ error: 0, userId, postId });
+    if (userId === post.userId) return;
+    if (type === "unlike") return;
+    const user = await User.findById(userId);
+    const userOfPost = await User.findById(post.userId);
+    userOfPost.notifications.push({
+      text: `Η δημοσίευσή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
+      link: `/group/${post.groupId}`,
+      unread: true,
+    });
+    await User.findByIdAndUpdate(post.userId, userOfPost, { new: true });
+    global.sockets
+      .find((socket) => socket.id === onlineUsers.get(userId))
+      .to(onlineUsers.get(String(post.userId)))
+      .emit("notification", {
+        text: `Η δημοσίευσή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
+        link: `/group/${post.groupId}`,
+        unread: true,
+      });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 1 });
   }
 });
@@ -224,6 +249,22 @@ router.post("/comment", async (req, res) => {
       )[0]._id,
       postedAt,
     });
+    if (userId === post.userId) return;
+    const userOfPost = await User.findById(post.userId);
+    userOfPost.notifications.push({
+      text: `Ο χρήστης ${userName} άφησε ένα σχόλιο στη δημοσίευσή σας.`,
+      link: `/group/${post.groupId}`,
+      unread: true,
+    });
+    await User.findByIdAndUpdate(post.userId, userOfPost, { new: true });
+    global.sockets
+      .find((socket) => socket.id === onlineUsers.get(userId))
+      .to(onlineUsers.get(String(post.userId)))
+      .emit("notification", {
+        text: `Ο χρήστης ${userName} άφησε ένα σχόλιο στη δημοσίευσή σας.`,
+        link: `/group/${post.groupId}`,
+        unread: true,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });
@@ -261,16 +302,40 @@ router.patch("/likeComment", async (req, res) => {
   try {
     const { userId, postId, commentId } = req.query;
     const post = await Post.findById(postId);
+    let commentUserId;
+    let type;
     for (let comment of post.comments) {
       if (String(comment._id) === commentId) {
-        comment.likes = comment.likes.includes(userId)
-          ? comment.likes.filter((id) => id !== userId)
-          : [...comment.likes, userId];
+        commentUserId = comment.userId;
+        if (comment.likes.includes(userId)) {
+          comment.likes = comment.likes.filter((id) => id !== userId);
+          type = "unlike";
+        } else {
+          comment.likes = [...comment.likes, userId];
+          type = "like";
+        }
         break;
       }
     }
     await Post.findByIdAndUpdate(postId, post, { new: true });
     res.status(200).json({ error: 0 });
+    if (userId === commentUserId || type === "unlike") return;
+    const user = await User.findById(userId);
+    const userOfComment = await User.findById(commentUserId);
+    userOfComment.notifications.push({
+      text: `Το σχόλιό σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
+      link: `/group/${post.groupId}`,
+      unread: true,
+    });
+    await User.findByIdAndUpdate(commentUserId, userOfComment, { new: true });
+    global.sockets
+      .find((socket) => socket.id === onlineUsers.get(userId))
+      .to(onlineUsers.get(String(commentUserId)))
+      .emit("notification", {
+        text: `Το σχόλιό σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
+        link: `/group/${post.groupId}`,
+        unread: true,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });
@@ -282,8 +347,10 @@ router.post("/reply", async (req, res) => {
     const { userId, userName, userPfp, postId, commentId, reply } = req.body;
     const post = await Post.findById(postId);
     const postedAt = new Date();
+    let commentUserId;
     for (let comment of post.comments) {
       if (String(comment._id) === commentId) {
+        commentUserId = comment.userId;
         comment.replies.push({
           userName,
           userId,
@@ -309,6 +376,22 @@ router.post("/reply", async (req, res) => {
           (reply) => String(reply.postedAt) === String(postedAt)
         )[0]._id,
     });
+    if (userId === commentUserId) return;
+    const userOfComment = await User.findById(commentUserId);
+    userOfComment.notifications.push({
+      text: `Ο χρήστης ${userName} απάντησε στο σχόλιό σας.`,
+      link: `/group/${post.groupId}`,
+      unread: true,
+    });
+    await User.findByIdAndUpdate(commentUserId, userOfComment, { new: true });
+    global.sockets
+      .find((socket) => socket.id === onlineUsers.get(userId))
+      .to(onlineUsers.get(String(commentUserId)))
+      .emit("notification", {
+        text: `Ο χρήστης ${userName} απάντησε στο σχόλιό σας.`,
+        link: `/group/${post.groupId}`,
+        unread: true,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });
@@ -348,21 +431,51 @@ router.patch("/deleteReply", async (req, res) => {
 router.patch("/likeReply", async (req, res) => {
   try {
     const { userId, postId, commentId, replyId } = req.query;
+    console.log(req.query);
     const post = await Post.findById(postId);
+    let replyUserId;
+    let type;
     for (let comment of post.comments) {
+      // console.log("IN FIRST FOR");
       if (String(comment._id) === commentId) {
+        // console.log("IN FIRST IF");
         for (let reply of comment.replies) {
+          // console.log("IN SECOND FOR");
           if (String(reply._id) === replyId) {
-            reply.likes = reply.likes.includes(userId)
-              ? reply.likes.filter((id) => id !== userId)
-              : [...reply.likes, userId];
+            replyUserId = reply.userId;
+            // console.log("replyUserId: " + replyUserId);
+            if (reply.likes.includes(userId)) {
+              reply.likes = reply.likes.filter((id) => id !== userId);
+              type = "unlike";
+            } else {
+              reply.likes = [...reply.likes, userId];
+              type = "like";
+            }
+            break;
           }
-          break;
         }
       }
     }
     await Post.findByIdAndUpdate(postId, post, { new: true });
     res.status(200).json({ error: 0 });
+    if (userId === replyUserId || type === "unlike") return;
+    const user = await User.findById(userId);
+    const userOfReply = await User.findById(replyUserId);
+    // console.log(userOfReply);
+    userOfReply.notifications.push({
+      text: `Η απάντησή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
+      link: `/group/${post.groupId}`,
+      unread: true,
+    });
+    await User.findByIdAndUpdate(replyUserId, userOfReply, { new: true });
+    global.sockets
+      .find((socket) => socket.id === onlineUsers.get(userId))
+      .to(onlineUsers.get(String(replyUserId)))
+      .emit("notification", {
+        text: `Η απάντησή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
+        link: `/group/${post.groupId}`,
+        unread: true,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 1 });

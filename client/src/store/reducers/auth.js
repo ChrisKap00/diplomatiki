@@ -183,7 +183,7 @@ export default (
                     }
                   : notification
               )
-              .sort(() => -1),
+              .reverse(),
           },
         },
       };

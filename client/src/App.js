@@ -55,7 +55,7 @@ function App() {
       // audio.play();
       // dispatch({ type: "ADD_RECEIVED_MESSAGE", payload: message });
     });
-    socket.current.on("receive-notification", (notification) => {
+    socket.current.on("notification", (notification) => {
       console.log(notification);
       dispatch({ type: "RECEIVE_NOTIFICATION", payload: notification });
     });
