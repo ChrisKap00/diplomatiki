@@ -65,6 +65,23 @@ export const fetchPosts = (params) => async (dispatch) => {
   dispatch({ type: "STOP_LOADING_FETCH_POSTS" });
 };
 
+export const fetchPost =
+  (postId, setPost, setIsloading) => async (dispatch) => {
+    setIsloading(true);
+    try {
+      const { data } = await api.fetchPost(postId);
+      console.log(data);
+      if (!data.error) {
+        setIsloading(false);
+        setPost(data.post);
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setIsloading(false);
+  };
+
 export const deletePost = (id) => async (dispatch) => {
   dispatch({ type: "SHOW_TEMP_DELETE_POST", payload: id });
   try {

@@ -263,66 +263,76 @@ export default function Post({ post }) {
               : moment(post.postedAt).fromNow()
           }
         />
-        <CardContent>
-          <Typography variant="body2" color="text.secondary">
-            {post.text}
-          </Typography>
-          {post?.file && (
-            <>
-              <br></br>
-              <Box
-                sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.08)",
-                  borderRadius: "10px",
-                  padding: "0.5rem 1rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  cursor: "pointer",
-                  position: "relative",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                  },
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    // backgroundColor: "red",
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    borderRadius: "10px",
-                  }}
-                  onClick={() => {
-                    const anchor = document.createElement("a");
-                    anchor.download = post.file.name;
-                    anchor.href = post.file.base64;
-                    anchor.click();
-                  }}
-                ></div>
+        <Link
+          to={`/post/${post._id}`}
+          style={{
+            textDecoration: "none",
+            color: "inherit",
+            pointerEvents:
+              location.pathname.split("/")[1] === "post" ? "none" : "auto",
+          }}
+        >
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              {post.text}
+            </Typography>
+            {post?.file && (
+              <>
+                <br></br>
                 <Box
                   sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    borderRadius: "10px",
+                    padding: "0.5rem 1rem",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    position: "relative",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    },
                   }}
                 >
-                  {post.file.type === "zip" ? (
-                    <FolderZip />
-                  ) : (
-                    <InsertDriveFile />
-                  )}
-                  <Typography sx={{ marginLeft: "5px" }}>
-                    {post.file.name}
-                  </Typography>
+                  <div
+                    style={{
+                      position: "absolute",
+                      // backgroundColor: "red",
+                      top: 0,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      borderRadius: "10px",
+                    }}
+                    onClick={() => {
+                      const anchor = document.createElement("a");
+                      anchor.download = post.file.name;
+                      anchor.href = post.file.base64;
+                      anchor.click();
+                    }}
+                  ></div>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {post.file.type === "zip" ? (
+                      <FolderZip />
+                    ) : (
+                      <InsertDriveFile />
+                    )}
+                    <Typography sx={{ marginLeft: "5px" }}>
+                      {post.file.name}
+                    </Typography>
+                  </Box>
+                  <Typography>{post.file.size}</Typography>
                 </Box>
-                <Typography>{post.file.size}</Typography>
-              </Box>
-            </>
-          )}
-        </CardContent>
+              </>
+            )}
+          </CardContent>
+        </Link>
         {post?.images.length > 0 && (
           <Box sx={{ position: "relative" }}>
             <img

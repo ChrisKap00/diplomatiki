@@ -17,6 +17,7 @@ import { fetchMessages, fetchPfp } from "./store/actions/messages";
 import { io } from "socket.io-client";
 import Search from "./components/Search/Search";
 import { fetchNotifications } from "./store/actions/profile";
+import PostPage from "./components/PostPage/PostPage";
 
 function App() {
   const [socket, setSocket] = useState(useRef());
@@ -32,12 +33,6 @@ function App() {
   useEffect(() => {
     if (!user) return;
     setSocket({ ...socket, current: io("http://localhost:5000") });
-    // console.log(
-    //   user.result.notifications.filter((notification) => notification.unread)[
-    //     user.result.notifications.filter((notification) => notification.unread)
-    //       .length - 1
-    //   ] || undefined
-    // );
     dispatch(fetchNotifications(user.result._id));
   }, [user?.result._id]);
 
@@ -76,6 +71,7 @@ function App() {
       type: "UPDATE_USER_ON_ACTION",
       payload: JSON.parse(localStorage.getItem("user")),
     });
+    if (location.pathname.split("/")[1] === "post") return;
     dispatch({ type: "CLEAR_POSTS" });
     // console.log(location.search.split("=")[1]);
   }, [location]);
@@ -100,6 +96,11 @@ function App() {
             path="/profile/:id"
             exact
             element={!user ? <Navigate to="/auth" replace /> : <Profile />}
+          />
+          <Route
+            path="/post/:id"
+            exact
+            element={!user ? <Navigate to="/auth" replace /> : <PostPage />}
           />
           <Route
             path="/group/:id"

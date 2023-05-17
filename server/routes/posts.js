@@ -49,7 +49,7 @@ router.post("/post", async (req, res) => {
     for (let i in notificationUsers) {
       notificationUsers[i].notifications.push({
         text: `Ο χρήστης ${userName} δημοσίευσε στην ομάδα ${groupName}.`,
-        link: `/group/${groupId}`,
+        link: `/post/${result._id}`,
         unread: true,
       });
       await User.findByIdAndUpdate(
@@ -62,7 +62,7 @@ router.post("/post", async (req, res) => {
         .to(onlineUsers.get(String(notificationUsers[i]._id)))
         .emit("notification", {
           text: `Ο χρήστης ${userName} δημοσίευσε στην ομάδα ${groupName}.`,
-          link: `/group/${groupId}`,
+          link: `/post/${result._id}`,
           unread: true,
         });
     }
@@ -166,6 +166,17 @@ router.post("/fetch", async (req, res) => {
   }
 });
 
+router.get("/fetchPost", async (req, res) => {
+  try {
+    const { postId } = req.query;
+    const post = await Post.findById(postId);
+    res.status(200).json({ error: 0, post });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 1 });
+  }
+});
+
 router.delete("/delete", async (req, res) => {
   console.log(req.query);
   const { postId } = req.query;
@@ -202,7 +213,7 @@ router.patch("/like", async (req, res) => {
     const userOfPost = await User.findById(post.userId);
     userOfPost.notifications.push({
       text: `Η δημοσίευσή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
-      link: `/group/${post.groupId}`,
+      link: `/post/${post._id}`,
       unread: true,
     });
     await User.findByIdAndUpdate(post.userId, userOfPost, { new: true });
@@ -211,7 +222,7 @@ router.patch("/like", async (req, res) => {
       .to(onlineUsers.get(String(post.userId)))
       .emit("notification", {
         text: `Η δημοσίευσή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
-        link: `/group/${post.groupId}`,
+        link: `/post/${post._id}`,
         unread: true,
       });
   } catch (error) {
@@ -253,7 +264,7 @@ router.post("/comment", async (req, res) => {
     const userOfPost = await User.findById(post.userId);
     userOfPost.notifications.push({
       text: `Ο χρήστης ${userName} άφησε ένα σχόλιο στη δημοσίευσή σας.`,
-      link: `/group/${post.groupId}`,
+      link: `/post/${post._id}`,
       unread: true,
     });
     await User.findByIdAndUpdate(post.userId, userOfPost, { new: true });
@@ -262,7 +273,7 @@ router.post("/comment", async (req, res) => {
       .to(onlineUsers.get(String(post.userId)))
       .emit("notification", {
         text: `Ο χρήστης ${userName} άφησε ένα σχόλιο στη δημοσίευσή σας.`,
-        link: `/group/${post.groupId}`,
+        link: `/post/${post._id}`,
         unread: true,
       });
   } catch (error) {
@@ -324,7 +335,7 @@ router.patch("/likeComment", async (req, res) => {
     const userOfComment = await User.findById(commentUserId);
     userOfComment.notifications.push({
       text: `Το σχόλιό σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
-      link: `/group/${post.groupId}`,
+      link: `/post/${post._id}`,
       unread: true,
     });
     await User.findByIdAndUpdate(commentUserId, userOfComment, { new: true });
@@ -333,7 +344,7 @@ router.patch("/likeComment", async (req, res) => {
       .to(onlineUsers.get(String(commentUserId)))
       .emit("notification", {
         text: `Το σχόλιό σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
-        link: `/group/${post.groupId}`,
+        link: `/post/${post._id}`,
         unread: true,
       });
   } catch (error) {
@@ -380,7 +391,7 @@ router.post("/reply", async (req, res) => {
     const userOfComment = await User.findById(commentUserId);
     userOfComment.notifications.push({
       text: `Ο χρήστης ${userName} απάντησε στο σχόλιό σας.`,
-      link: `/group/${post.groupId}`,
+      link: `/post/${post._id}`,
       unread: true,
     });
     await User.findByIdAndUpdate(commentUserId, userOfComment, { new: true });
@@ -389,7 +400,7 @@ router.post("/reply", async (req, res) => {
       .to(onlineUsers.get(String(commentUserId)))
       .emit("notification", {
         text: `Ο χρήστης ${userName} απάντησε στο σχόλιό σας.`,
-        link: `/group/${post.groupId}`,
+        link: `/post/${post._id}`,
         unread: true,
       });
   } catch (error) {
@@ -464,7 +475,7 @@ router.patch("/likeReply", async (req, res) => {
     // console.log(userOfReply);
     userOfReply.notifications.push({
       text: `Η απάντησή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
-      link: `/group/${post.groupId}`,
+      link: `/post/${post._id}`,
       unread: true,
     });
     await User.findByIdAndUpdate(replyUserId, userOfReply, { new: true });
@@ -473,7 +484,7 @@ router.patch("/likeReply", async (req, res) => {
       .to(onlineUsers.get(String(replyUserId)))
       .emit("notification", {
         text: `Η απάντησή σας αρέσει στον χρήστη ${user.firstName} ${user.lastName}.`,
-        link: `/group/${post.groupId}`,
+        link: `/post/${post._id}`,
         unread: true,
       });
   } catch (error) {
