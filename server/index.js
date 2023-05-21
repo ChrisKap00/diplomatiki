@@ -33,9 +33,7 @@ mongoose.connect(
   }
 );
 // .catch((error) => console.log(error.message));
-const server = app.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}`)
-);
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 const io = new Server(server, {
   cors: {
@@ -43,8 +41,6 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
-// console.log(io);
 
 global.onlineUsers = new Map();
 global.sockets = [];
@@ -63,25 +59,10 @@ io.on("connection", (socket) => {
     console.log(onlineUsers);
   });
   socket.on("disconnect", () => {
-    // console.log("user " + onlineUsers.get(socket.id) + " disconnected");
     console.log("user disconnected");
-    global.onlineUsers.delete(
-      global.sockets.find((s) => s.id === socket.id).data.userId
-    );
+    global.onlineUsers.delete(global.sockets.find((s) => s.id === socket.id).data.userId);
     global.sockets = global.sockets.filter((s) => s.id !== socket.id);
     console.log(global.sockets.map((s) => s.id));
     console.log(onlineUsers);
   });
-  // socket.on("send-msg", (message) => {
-  //   console.log("message: ");
-  //   console.log(message);
-  //   const receiverSocket = onlineUsers.get(message.receiverId);
-  //   console.log("receiverSocket: ");
-  //   console.log(receiverSocket);
-  //   if (receiverSocket) {
-  //     console.log(`SENDING receive-msg to ${receiverSocket}`);
-  //     socket.to(receiverSocket).emit("receive-msg", message);
-  //   }
-  //   console.log(onlineUsers);
-  // });
 });

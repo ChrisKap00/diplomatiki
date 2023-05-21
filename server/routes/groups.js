@@ -4,11 +4,14 @@ import jwt from "jsonwebtoken";
 
 import Group from "../models/group.js";
 import User from "../models/user.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
 // router.post("/signin", signin);
 router.post("/create", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   console.log(req.body);
   const {
     groupData: { code, name },
@@ -47,6 +50,8 @@ router.post("/create", async (req, res) => {
 });
 
 router.get("/fetchGroups", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+  
   try {
     const groups = await Group.find({});
     for (let group of groups) {
@@ -63,6 +68,8 @@ router.get("/fetchGroups", async (req, res) => {
 });
 
 router.patch("/follow", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+  
   try {
     console.log(req.query);
     const { userId, firstName, lastName, pfp, groupId } = req.query;

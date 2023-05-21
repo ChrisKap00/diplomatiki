@@ -2,9 +2,13 @@ import express from "express";
 
 import User from "../models/user.js";
 
+import auth from "../middleware/auth.js";
+
 const router = express.Router();
 
 router.get("/fetchMessages", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+  
   console.log(req.query);
   try {
     const { userId } = req.query;
@@ -17,6 +21,8 @@ router.get("/fetchMessages", async (req, res) => {
 });
 
 router.post("/sendMessage", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+  
   const { senderId, receiverId, message, fetchChat } = req.body;
   console.log(req.body);
   try {
@@ -25,9 +31,7 @@ router.post("/sendMessage", async (req, res) => {
     const sentAt = new Date();
     let counter;
     // console.log(sender);
-    const senderChat = sender.messages.find(
-      (chat) => chat.withId === receiverId
-    );
+    const senderChat = sender.messages.find((chat) => chat.withId === receiverId);
     if (!senderChat) {
       sender.messages.push({
         withId: receiverId,
@@ -58,9 +62,7 @@ router.post("/sendMessage", async (req, res) => {
     }
     await User.findByIdAndUpdate(senderId, sender, { new: true });
 
-    const receiverChat = receiver.messages.find(
-      (chat) => chat.withId === senderId
-    );
+    const receiverChat = receiver.messages.find((chat) => chat.withId === senderId);
     if (!senderChat) {
       counter = 0;
       receiver.messages.push({
@@ -121,6 +123,8 @@ router.post("/sendMessage", async (req, res) => {
 });
 
 router.get("/fetchPfp", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+  
   const { userId } = req.query;
   try {
     const user = await User.findById(userId);
@@ -131,6 +135,8 @@ router.get("/fetchPfp", async (req, res) => {
 });
 
 router.get("/fetchInfoForChat", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+  
   try {
     const { userId } = req.query;
     const user = await User.findById(userId);

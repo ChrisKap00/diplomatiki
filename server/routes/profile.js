@@ -3,9 +3,13 @@ import express from "express";
 import Post from "../models/post.js";
 import User from "../models/user.js";
 
+import auth from "../middleware/auth.js";
+
 const router = express.Router();
 
 router.post("/changePfp", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   console.log(req.body);
   try {
     const { userId, pfp } = req.body;
@@ -35,6 +39,8 @@ router.post("/changePfp", async (req, res) => {
 });
 
 router.get("/fetchProfileInfo", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { userId } = req.query;
     const user = await User.findById(userId);
@@ -51,6 +57,8 @@ router.get("/fetchProfileInfo", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { query } = req.query;
     console.log(query);
@@ -84,6 +92,8 @@ router.get("/search", async (req, res) => {
 });
 
 router.patch("/readNotifications", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { userId } = req.query;
     console.log(userId);
@@ -99,6 +109,8 @@ router.patch("/readNotifications", async (req, res) => {
 });
 
 router.get("/fetchNotifications", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { userId } = req.query;
     // console.log(userId);

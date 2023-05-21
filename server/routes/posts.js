@@ -5,21 +5,16 @@ import jwt from "jsonwebtoken";
 import Post from "../models/post.js";
 import User from "../models/user.js";
 
+import auth from "../middleware/auth.js";
+
 const router = express.Router();
 
 router.post("/post", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   console.log(req.body);
   try {
-    const {
-      userId,
-      userName,
-      userPfp,
-      groupId,
-      groupName,
-      text,
-      images,
-      file,
-    } = req.body;
+    const { userId, userName, userPfp, groupId, groupName, text, images, file } = req.body;
 
     const postedAt = new Date();
 
@@ -52,11 +47,9 @@ router.post("/post", async (req, res) => {
         link: `/post/${result._id}`,
         unread: true,
       });
-      await User.findByIdAndUpdate(
-        String(notificationUsers[i]._id),
-        notificationUsers[i],
-        { new: true }
-      );
+      await User.findByIdAndUpdate(String(notificationUsers[i]._id), notificationUsers[i], {
+        new: true,
+      });
       global.sockets
         .find((socket) => socket.id === onlineUsers.get(userId))
         .to(onlineUsers.get(String(notificationUsers[i]._id)))
@@ -73,6 +66,9 @@ router.post("/post", async (req, res) => {
 });
 
 router.post("/fetch", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
+  console.log(req.headers);
   // console.log(req.body);
   try {
     const { userId, groups, page, groupId, profileId, search } = req.body;
@@ -98,9 +94,7 @@ router.post("/fetch", async (req, res) => {
       res.status(200).json({
         error: 0,
         posts: postsToSend,
-        last:
-          String(postsToSend[postsToSend.length - 1]._id) ===
-          postsTemp[postsTemp.length - 1],
+        last: String(postsToSend[postsToSend.length - 1]._id) === postsTemp[postsTemp.length - 1],
       });
     } else if (groupId && !search) {
       let posts = await Post.find({ groupId });
@@ -117,9 +111,7 @@ router.post("/fetch", async (req, res) => {
       res.status(200).json({
         error: 0,
         posts: postsToSend,
-        last:
-          String(postsToSend[postsToSend.length - 1]._id) ===
-          postsTemp[postsTemp.length - 1],
+        last: String(postsToSend[postsToSend.length - 1]._id) === postsTemp[postsTemp.length - 1],
       });
     } else if (groupId && search) {
       let posts = await Post.find({ groupId, text: RegExp(search, "i") });
@@ -136,9 +128,7 @@ router.post("/fetch", async (req, res) => {
       res.status(200).json({
         error: 0,
         posts: postsToSend,
-        last:
-          String(postsToSend[postsToSend.length - 1]._id) ===
-          postsTemp[postsTemp.length - 1],
+        last: String(postsToSend[postsToSend.length - 1]._id) === postsTemp[postsTemp.length - 1],
       });
     } else if (profileId) {
       let posts = await Post.find({ userId: profileId });
@@ -155,9 +145,7 @@ router.post("/fetch", async (req, res) => {
       res.status(200).json({
         error: 0,
         posts: postsToSend,
-        last:
-          String(postsToSend[postsToSend.length - 1]._id) ===
-          postsTemp[postsTemp.length - 1],
+        last: String(postsToSend[postsToSend.length - 1]._id) === postsTemp[postsTemp.length - 1],
       });
     }
   } catch (error) {
@@ -167,6 +155,8 @@ router.post("/fetch", async (req, res) => {
 });
 
 router.get("/fetchPost", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { postId } = req.query;
     const post = await Post.findById(postId);
@@ -232,6 +222,8 @@ router.patch("/like", async (req, res) => {
 });
 
 router.post("/comment", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { userId, userName, userPfp, postId, comment } = req.body;
     console.log(req.body);
@@ -283,6 +275,8 @@ router.post("/comment", async (req, res) => {
 });
 
 router.patch("/deleteComment", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   console.log(req.query);
   const { postId, commentId } = req.query;
   try {
@@ -309,6 +303,8 @@ router.patch("/deleteComment", async (req, res) => {
 });
 
 router.patch("/likeComment", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   console.log(req.query);
   try {
     const { userId, postId, commentId } = req.query;
@@ -354,6 +350,8 @@ router.patch("/likeComment", async (req, res) => {
 });
 
 router.post("/reply", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { userId, userName, userPfp, postId, commentId, reply } = req.body;
     const post = await Post.findById(postId);
@@ -383,9 +381,7 @@ router.post("/reply", async (req, res) => {
       error: 0,
       replyId: updatedPost.comments
         .filter((comment) => String(comment._id) === commentId)[0]
-        .replies.filter(
-          (reply) => String(reply.postedAt) === String(postedAt)
-        )[0]._id,
+        .replies.filter((reply) => String(reply.postedAt) === String(postedAt))[0]._id,
     });
     if (userId === commentUserId) return;
     const userOfComment = await User.findById(commentUserId);
@@ -410,6 +406,8 @@ router.post("/reply", async (req, res) => {
 });
 
 router.patch("/deleteReply", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { postId, commentId, replyId } = req.query;
     const post = await Post.findById(postId);
@@ -440,6 +438,8 @@ router.patch("/deleteReply", async (req, res) => {
 });
 
 router.patch("/likeReply", async (req, res) => {
+  if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
+
   try {
     const { userId, postId, commentId, replyId } = req.query;
     console.log(req.query);
