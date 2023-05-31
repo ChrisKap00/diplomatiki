@@ -1,6 +1,4 @@
 import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 import Group from "../models/group.js";
 import User from "../models/user.js";
@@ -51,14 +49,11 @@ router.post("/create", async (req, res) => {
 
 router.get("/fetchGroups", async (req, res) => {
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
-  
+
   try {
     const groups = await Group.find({});
     for (let group of groups) {
       group.posts = undefined;
-      for (let user of group.users) {
-        user.pfp = undefined;
-      }
     }
     return res.status(200).json({ error: 0, groups });
   } catch (error) {
@@ -68,11 +63,12 @@ router.get("/fetchGroups", async (req, res) => {
 });
 
 router.patch("/follow", async (req, res) => {
+  console.log("HERE");
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
-  
+
   try {
     console.log(req.query);
-    const { userId, firstName, lastName, pfp, groupId } = req.query;
+    const { userId, groupId } = req.query;
     const group = await Group.findById(groupId);
     const user = await User.findById(userId);
     if (!group) {
@@ -87,7 +83,12 @@ router.patch("/follow", async (req, res) => {
       user.groups = user.groups.filter((e) => e !== groupId);
       type = "rmv";
     } else {
-      group.users.push({ _id: userId, firstName, lastName, pfp });
+      group.users.push({
+        _id: userId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        pfp: user.pfp,
+      });
       user.groups.push(groupId);
       type = "add";
     }
@@ -97,15 +98,41 @@ router.patch("/follow", async (req, res) => {
     });
     await User.findByIdAndUpdate(userId, user, { new: true });
 
-    return res.status(200).json({
+    res.status(200).json({
       error: 0,
       type,
       groupId,
       userId,
-      firstName,
-      lastName,
-      pfp: pfp === "undefined" ? undefined : pfp,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      pfp: user.pfp,
     });
+
+    if (type === "rmv") return;
+
+    const notificationUsers = (await User.find({ groups: groupId })).filter(
+      (u) => String(u._id) !== userId
+    );
+    console.log(notificationUsers.map((u) => u._id));
+
+    for (let i in notificationUsers) {
+      notificationUsers[i].notifications.push({
+        text: `Ο χρήστης ${user.firstName} ${user.lastName} μπήκε στην ομάδα ${group.code}-${group.name}.`,
+        link: `/group/${group._id}`,
+        unread: true,
+      });
+      await User.findByIdAndUpdate(String(notificationUsers[i]._id), notificationUsers[i], {
+        new: true,
+      });
+      global.sockets
+        .find((socket) => socket.id === onlineUsers.get(userId))
+        .to(onlineUsers.get(String(notificationUsers[i]._id)))
+        .emit("notification", {
+          text: `Ο χρήστης ${user.firstName} ${user.lastName} μπήκε στην ομάδα ${group.code}-${group.name}.`,
+          link: `/group/${group._id}`,
+          unread: true,
+        });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: 1 });

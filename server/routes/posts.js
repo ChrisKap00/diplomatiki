@@ -30,7 +30,6 @@ router.post("/post", async (req, res) => {
       postedAt,
     });
     const user = await User.findById(userId);
-    user.posts.push({ postId: result._id, groupId });
     await User.findByIdAndUpdate(userId, user, { new: true });
     res.status(200).json({ error: 0, postId: result._id, postedAt });
 
@@ -97,6 +96,8 @@ router.post("/fetch", async (req, res) => {
         last: String(postsToSend[postsToSend.length - 1]._id) === postsTemp[postsTemp.length - 1],
       });
     } else if (groupId && !search) {
+      const user = await User.findById(userId);
+      if (!user.groups.includes(groupId)) return res.status(200).json({ error: 2 });
       let posts = await Post.find({ groupId });
       posts.sort((post1, post2) => post2.postedAt - post1.postedAt);
       const postsTemp = posts.map((post) => String(post._id));
@@ -158,8 +159,11 @@ router.get("/fetchPost", async (req, res) => {
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
 
   try {
-    const { postId } = req.query;
+    const { userId, postId } = req.query;
+    console.log(req.query);
+    const user = await User.findById(userId);
     const post = await Post.findById(postId);
+    if (!user.groups.includes(post.groupId)) return res.status(500).json({ error: 2 });
     res.status(200).json({ error: 0, post });
   } catch (error) {
     console.log(error);
@@ -168,12 +172,13 @@ router.get("/fetchPost", async (req, res) => {
 });
 
 router.delete("/delete", async (req, res) => {
-  console.log(req.query);
+  console.log("DELETE: " + req.query.postId);
   const { postId } = req.query;
   try {
     await Post.findByIdAndDelete(postId);
     res.status(200).json({ error: 0, postId });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 1, postId });
   }
 });

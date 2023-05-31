@@ -27,7 +27,7 @@ const MyGroup = ({ group, drawer }) => {
           transition: "0.2s",
         }}
       >
-        {group.name}
+        {`${group.code} ${group.name}`}
       </Box>
     </Link>
   );

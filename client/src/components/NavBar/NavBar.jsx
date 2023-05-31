@@ -189,9 +189,7 @@ const NavBar = () => {
     setNotificationsAnchorEl(event.currentTarget);
     if (
       isLoadingReadNotifications ||
-      !user?.result.notifications.filter(
-        (notification) => notification.unreadClient
-      ).length
+      !user?.result.notifications.filter((notification) => notification.unreadClient).length
     )
       return;
     dispatch(readNotifications(user?.result._id));
@@ -199,15 +197,9 @@ const NavBar = () => {
   const handleNotificationsMenuClose = () => {
     setNotificationsAnchorEl(null);
     console.log(
-      user?.result.notifications.filter(
-        (notification) => notification.unreadClient
-      ).length
+      user?.result.notifications.filter((notification) => notification.unreadClient).length
     );
-    if (
-      user?.result.notifications.filter(
-        (notification) => notification.unreadClient
-      ).length === 0
-    )
+    if (user?.result.notifications.filter((notification) => notification.unreadClient).length === 0)
       return;
     dispatch({ type: "READ_NOTIFICATIONS_CLIENT" });
   };
@@ -270,8 +262,7 @@ const NavBar = () => {
               padding: "0.2rem 0.5rem",
               "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.15)" },
               cursor: "pointer",
-              borderTop:
-                index === 0 ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
+              borderTop: index === 0 ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
             }}
             component="div"
             key={index}
@@ -345,7 +336,13 @@ const NavBar = () => {
             </Search>
           ) : (
             <>
-              <Link to="/">
+              <Link
+                to="/"
+                onClick={() => {
+                  if (location.pathname.split("/")[1] === "") navigate(0);
+                  else return;
+                }}
+              >
                 <Avatar
                   src={require("../../assets/logo.png")}
                   sx={{ height: "45px", width: "45px" }}
@@ -411,7 +408,6 @@ const NavBar = () => {
                   // onClick={handleProfileMenuOpen}
                   color="inherit"
                   sx={{
-                    marginLeft: "25px",
                     backgroundColor: "rgba(255, 255, 255, 0.1)",
                     padding: "20px",
                     height: "30px",
@@ -456,9 +452,8 @@ const NavBar = () => {
               </Link>
               <Badge
                 badgeContent={
-                  user?.result.notifications.filter(
-                    (notification) => notification.unreadClient
-                  ).length
+                  user?.result.notifications.filter((notification) => notification.unreadClient)
+                    .length
                 }
                 color="error"
                 max={9}
@@ -507,10 +502,7 @@ const NavBar = () => {
                   sx={{ height: "35px", width: "35px", aspectRatio: 1 }}
                 />
               </IconButton>
-              <Typography
-                marginLeft={1}
-                sx={{ display: { xs: "none", md: "block" } }}
-              >
+              <Typography marginLeft={1} sx={{ display: { xs: "none", md: "block" } }}>
                 {`${user?.result?.firstName} ${user?.result?.lastName}`}
               </Typography>
             </>

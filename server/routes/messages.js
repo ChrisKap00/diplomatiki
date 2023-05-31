@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/fetchMessages", async (req, res) => {
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
-  
+
   console.log(req.query);
   try {
     const { userId } = req.query;
@@ -22,7 +22,7 @@ router.get("/fetchMessages", async (req, res) => {
 
 router.post("/sendMessage", async (req, res) => {
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
-  
+
   const { senderId, receiverId, message, fetchChat } = req.body;
   console.log(req.body);
   try {
@@ -32,6 +32,7 @@ router.post("/sendMessage", async (req, res) => {
     let counter;
     // console.log(sender);
     const senderChat = sender.messages.find((chat) => chat.withId === receiverId);
+    let firstChat = true;
     if (!senderChat) {
       sender.messages.push({
         withId: receiverId,
@@ -50,6 +51,7 @@ router.post("/sendMessage", async (req, res) => {
       });
       counter = 0;
     } else {
+      firstChat = false;
       counter = senderChat.data.length;
       senderChat.data.push({
         senderId: senderId,
@@ -107,6 +109,8 @@ router.post("/sendMessage", async (req, res) => {
         .to(receiverSocket)
         .emit("receive-msg", {
           senderId: senderId,
+          senderName: firstChat ? `${sender.firstName} ${sender.lastName}` : undefined,
+          senderPfp: firstChat ? sender.pfp : undefined,
           text: message.text,
           image: message.image,
           file: message.file,
@@ -124,7 +128,7 @@ router.post("/sendMessage", async (req, res) => {
 
 router.get("/fetchPfp", async (req, res) => {
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
-  
+
   const { userId } = req.query;
   try {
     const user = await User.findById(userId);
@@ -136,7 +140,7 @@ router.get("/fetchPfp", async (req, res) => {
 
 router.get("/fetchInfoForChat", async (req, res) => {
   if (!auth(req)) return res.status(500).json({ message: "Invalid token" });
-  
+
   try {
     const { userId } = req.query;
     const user = await User.findById(userId);

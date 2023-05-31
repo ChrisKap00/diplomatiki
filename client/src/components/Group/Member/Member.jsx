@@ -5,10 +5,7 @@ import defaultPfp from "../../../assets/defaultPfp.jpg";
 
 const Member = ({ user }) => {
   return (
-    <Link
-      to={`/profile/${user._id}`}
-      style={{ textDecoration: "none", color: "white" }}
-    >
+    <Link to={`/profile/${user._id}`} style={{ textDecoration: "none", color: "white" }}>
       <Box
         sx={{
           backgroundColor: "rgba(255, 255, 255, 0.08)",
@@ -27,7 +24,7 @@ const Member = ({ user }) => {
           paddingBlock: "10px",
         }}
       >
-        <Avatar src={user.pfp ? user.pfp : defaultPfp}></Avatar>
+        <Avatar src={user.pfp || defaultPfp}></Avatar>
         <Typography sx={{ marginLeft: "15px" }}>
           {user.firstName} {user.lastName}
         </Typography>

@@ -43,11 +43,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import CommentComponent from "./Comment/Comment";
 import { Link, useLocation } from "react-router-dom";
-import {
-  deletePost,
-  likePost,
-  postComment,
-} from "../../../store/actions/posts";
+import { deletePost, likePost, postComment } from "../../../store/actions/posts";
 import ReactImageFileToBase64 from "react-file-image-to-base64";
 import FileBase from "react-file-base64";
 import ImageCarousel from "../../ImageCarousel/ImageCarousel";
@@ -197,9 +193,6 @@ export default function Post({ post }) {
       onClose={handleMenuClose}
     >
       {post.userId === user.result._id && (
-        <MenuItem onClick={handleMenuClose}>Edit (not implemented)</MenuItem>
-      )}
-      {post.userId === user.result._id && (
         <MenuItem onClick={openDeleteConfirmationModal}>Delete</MenuItem>
       )}
     </Menu>
@@ -210,19 +203,12 @@ export default function Post({ post }) {
       {images && <ImageCarousel images={images} setImages={setImages} />}
       <Card
         sx={{
-          width:
-            location.pathname.split("/")[1] === "group"
-              ? "100%"
-              : { xs: "100%", xl: "90%" },
+          width: location.pathname.split("/")[1] === "group" ? "100%" : { xs: "100%", xl: "90%" },
           marginBottom: "20px",
           opacity:
-            post.postedAt === "Posting..." || post.postedAt === "Deleting..."
-              ? "50%"
-              : "100%",
+            post.postedAt === "Posting..." || post.postedAt === "Deleting..." ? "50%" : "100%",
           pointerEvents:
-            post.postedAt === "Posting..." || post.postedAt === "Deleting..."
-              ? "none"
-              : "auto",
+            post.postedAt === "Posting..." || post.postedAt === "Deleting..." ? "none" : "auto",
         }}
         elevation={10}
       >
@@ -268,12 +254,11 @@ export default function Post({ post }) {
           style={{
             textDecoration: "none",
             color: "inherit",
-            pointerEvents:
-              location.pathname.split("/")[1] === "post" ? "none" : "auto",
+            pointerEvents: location.pathname.split("/")[1] === "post" ? "none" : "auto",
           }}
         >
           <CardContent>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap" }}>
               {post.text}
             </Typography>
             {post?.file && (
@@ -318,14 +303,8 @@ export default function Post({ post }) {
                       justifyContent: "center",
                     }}
                   >
-                    {post.file.type === "zip" ? (
-                      <FolderZip />
-                    ) : (
-                      <InsertDriveFile />
-                    )}
-                    <Typography sx={{ marginLeft: "5px" }}>
-                      {post.file.name}
-                    </Typography>
+                    {post.file.type === "zip" ? <FolderZip /> : <InsertDriveFile />}
+                    <Typography sx={{ marginLeft: "5px" }}>{post.file.name}</Typography>
                   </Box>
                   <Typography>{post.file.size}</Typography>
                 </Box>
@@ -335,10 +314,7 @@ export default function Post({ post }) {
         </Link>
         {post?.images.length > 0 && (
           <Box sx={{ position: "relative" }}>
-            <img
-              src={post.images[0]}
-              style={{ cursor: "pointer", width: "100%" }}
-            ></img>
+            <img src={post.images[0]} style={{ cursor: "pointer", width: "100%" }}></img>
             {post.images.length > 1 && (
               <div
                 style={{
@@ -354,8 +330,7 @@ export default function Post({ post }) {
                   justifyContent: "center",
                   cursor: "pointer",
                   pointerEvents:
-                    post.postedAt === "Posting..." ||
-                    post.postedAt === "Deleting..."
+                    post.postedAt === "Posting..." || post.postedAt === "Deleting..."
                       ? "none"
                       : "auto",
                 }}
@@ -381,37 +356,6 @@ export default function Post({ post }) {
               </div>
             )}
           </Box>
-          // <CardMedia
-          //   component="img"
-          //   // height="50%"
-          //   image={post.images[0]}
-          //   sx={{ objectFit: "revert" }}
-          //   alt="Paella dish"
-          // />
-          // <Box sx={{ width: "100%" }}>
-          //   <Carousel
-          //     axis="horizontal"
-          //     // showArrows={false}
-          //     emulateTouch={true}
-          //     showIndicators={false}
-          //     showThumbs={false}
-          //   >
-          //     {post.images.map((image, index) => (
-          //       <div
-          //         key={index}
-          //         style={{
-          //           // backgroundColor: "red",
-          //           height: "100%",
-          //           width: "100%",
-          //           display: "flex",
-          //           alignItems: "center",
-          //         }}
-          //       >
-          //         <img src={image} style={{ width: "100%" }}></img>
-          //       </div>
-          //     ))}
-          //   </Carousel>
-          // </Box>
         )}
         <CardActions disableSpacing>
           <Checkbox
@@ -433,12 +377,7 @@ export default function Post({ post }) {
           </ExpandMore>
           <Typography>{post.comments.length}</Typography>
         </CardActions>
-        <Collapse
-          in={expanded}
-          timeout="auto"
-          unmountOnExit
-          sx={{ width: "100%" }}
-        >
+        <Collapse in={expanded} timeout="auto" unmountOnExit sx={{ width: "100%" }}>
           <hr
             style={{
               width: "95%",
@@ -532,10 +471,7 @@ export default function Post({ post }) {
                             console.log(data);
                             setComment({
                               ...comment,
-                              images: [
-                                ...comment.images,
-                                ...data.map((e) => e.base64_file),
-                              ],
+                              images: [...comment.images, ...data.map((e) => e.base64_file)],
                             });
                           }}
                         />
@@ -554,9 +490,7 @@ export default function Post({ post }) {
                                 base64: data.base64,
                                 name: data.name,
                                 size: data.size,
-                                type: data.type.substring(
-                                  data.type.indexOf("/") + 1
-                                ),
+                                type: data.type.substring(data.type.indexOf("/") + 1),
                               },
                             });
                           }}
@@ -614,9 +548,7 @@ export default function Post({ post }) {
                             onClick={() => {
                               setComment({
                                 ...comment,
-                                images: comment.images.filter(
-                                  (image2, idx2) => idx2 !== idx
-                                ),
+                                images: comment.images.filter((image2, idx2) => idx2 !== idx),
                               });
                             }}
                           >
@@ -689,14 +621,8 @@ export default function Post({ post }) {
                             justifyContent: "center",
                           }}
                         >
-                          {comment.file.type === "zip" ? (
-                            <FolderZip />
-                          ) : (
-                            <InsertDriveFile />
-                          )}
-                          <Typography sx={{ marginLeft: "5px" }}>
-                            {comment.file.name}
-                          </Typography>
+                          {comment.file.type === "zip" ? <FolderZip /> : <InsertDriveFile />}
+                          <Typography sx={{ marginLeft: "5px" }}>{comment.file.name}</Typography>
                         </Box>
                         <Typography>{comment.file.size}</Typography>
                       </Paper>
@@ -713,11 +639,7 @@ export default function Post({ post }) {
               }}
             >
               {post.comments.map((comment, idx) => (
-                <CommentComponent
-                  key={idx}
-                  comment={comment}
-                  postId={post._id}
-                />
+                <CommentComponent key={idx} comment={comment} postId={post._id} />
               ))}
             </div>
           </CardContent>

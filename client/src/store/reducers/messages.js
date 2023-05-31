@@ -94,9 +94,7 @@ export default (
     case "RECEIVE_MESSAGE":
       return {
         ...state,
-        messages: state.messages.find(
-          (chat) => chat.withId === action.payload.senderId
-        )
+        messages: state.messages.find((chat) => chat.withId === action.payload.senderId)
           ? state.messages.map((chat) =>
               chat.withId === action.payload.senderId
                 ? {
@@ -119,12 +117,13 @@ export default (
               {
                 withId: action.payload.senderId,
                 withName: action.payload.senderName,
+                withPfp: action.payload.senderPfp,
                 data: [
                   {
                     senderId: action.payload.senderId,
-                    text: action.payload.message.text,
-                    image: action.payload.message.image,
-                    file: action.payload.message.file,
+                    text: action.payload.text,
+                    image: action.payload.image,
+                    file: action.payload.file,
                     sentAt: action.payload.sentAt,
                     counter: action.payload.counter,
                   },
@@ -137,9 +136,7 @@ export default (
       return {
         ...state,
         messages: state.messages.map((chat) =>
-          chat.withId === action.payload.senderId
-            ? { ...chat, withPfp: action.payload.pfp }
-            : chat
+          chat.withId === action.payload.senderId ? { ...chat, withPfp: action.payload.pfp } : chat
         ),
       };
     default:

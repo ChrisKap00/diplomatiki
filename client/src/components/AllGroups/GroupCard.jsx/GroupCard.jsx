@@ -68,38 +68,22 @@ const GroupCard = ({ group }) => {
               <Typography>{group.code}</Typography>
             </Box>
           </Box>
-          <Typography sx={{ textAlign: "center", padding: "1rem" }}>
-            {group.name}
-          </Typography>
+          <Typography sx={{ textAlign: "center", padding: "1rem" }}>{group.name}</Typography>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             sx={{ width: "fit-content" }}
             color={
-              group.users.findIndex((e) => e._id === user.result._id) > -1
-                ? "error"
-                : "primary"
+              group.users.findIndex((e) => e._id === user.result._id) > -1 ? "error" : "primary"
             }
             onClick={(e) => {
               e.preventDefault();
-              dispatch(
-                followGroup(
-                  {
-                    userId: user.result._id,
-                    firstName: user.result.firstName,
-                    lastName: user.result.lastName,
-                    pfp: user.result.pfp,
-                  },
-                  group._id
-                )
-              );
+              dispatch(followGroup(user?.result._id, group._id));
             }}
             disabled={group.loadingFollow}
           >
-            {group.users.findIndex((e) => e._id === user.result._id) > -1
-              ? "Απεγγραφή"
-              : "Εγγραφή"}
+            {group.users.findIndex((e) => e._id === user.result._id) > -1 ? "Απεγγραφή" : "Εγγραφή"}
           </Button>
         </Box>
       </Card>

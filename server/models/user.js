@@ -8,7 +8,6 @@ const userSchema = mongoose.Schema({
   pfp: { type: String, required: false },
   verified: { type: Boolean, default: false },
   groups: { type: [String], default: [] },
-  posts: { type: [{ postId: String, groupId: String }], default: [] },
   messages: {
     type: [
       {

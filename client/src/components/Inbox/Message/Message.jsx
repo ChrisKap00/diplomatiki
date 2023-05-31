@@ -20,10 +20,7 @@ const Message = ({ message, withId }) => {
         <Box
           sx={{
             color: "white",
-            backgroundColor:
-              message.senderId !== withId
-                ? "#1976D2"
-                : "rgba(255, 255, 255, 0.15)",
+            backgroundColor: message.senderId !== withId ? "#1976D2" : "rgba(255, 255, 255, 0.15)",
             width: "fit-content",
             maxWidth: "50%",
             postition: "absolute",
@@ -31,6 +28,8 @@ const Message = ({ message, withId }) => {
             padding: "5px 15px",
             borderRadius: "20px",
             wordBreak: "break-word",
+            display: "flex",
+            alignItems: "center",
           }}
         >
           {message.text}
@@ -40,8 +39,7 @@ const Message = ({ message, withId }) => {
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent:
-              message.senderId === withId ? "flex-start" : "flex-end",
+            justifyContent: message.senderId === withId ? "flex-start" : "flex-end",
           }}
         >
           <img

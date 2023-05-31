@@ -38,10 +38,11 @@ export const fetchGroups = () => async (dispatch) => {
   dispatch({ type: "STOP_LOADING_FETCH_GROUPS" });
 };
 
-export const followGroup = (user, groupId) => async (dispatch) => {
+export const followGroup = (userId, groupId) => async (dispatch) => {
   dispatch({ type: "START_LOADING_FOLLOW_GROUP", payload: groupId });
+  console.log("HERE");
   try {
-    const { data } = await api.followGroup({ user, groupId });
+    const { data } = await api.followGroup({ userId, groupId });
     console.log(data);
     if (!data.error) {
       dispatch({
@@ -55,8 +56,7 @@ export const followGroup = (user, groupId) => async (dispatch) => {
           pfp: data.pfp,
         },
       });
-      if (data.type === "add")
-        dispatch({ type: "ADD_GROUP_TO_USER", payload: data.groupId });
+      if (data.type === "add") dispatch({ type: "ADD_GROUP_TO_USER", payload: data.groupId });
       else dispatch({ type: "REMOVE_GROUP_FROM_USER", payload: data.groupId });
     }
   } catch (error) {

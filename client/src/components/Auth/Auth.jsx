@@ -47,11 +47,27 @@ const Auth = () => {
     }
   };
 
-  const handleShowPassword = () =>
-    setShowPassword((prevShowPassword) => !prevShowPassword);
+  const handleShowPassword = () => setShowPassword((prevShowPassword) => !prevShowPassword);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // if (e.target.name === "email") {
+    //   if (
+    //     e.target.value.endsWith("@uth.gr") &&
+    //     problems.includes("Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).")
+    //   ) {
+    //     setProblems(
+    //       problems.filter(
+    //         (problem) => problem !== "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr)."
+    //       )
+    //     );
+    //   } else if (
+    //     !e.target.value.endsWith("@uth.gr") &&
+    //     !problems.includes("Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).")
+    //   ) {
+    //     setProblems([...problems, "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr)."]);
+    //   }
+    // }
     if (e.target.name === "password") {
       if (
         e.target.value !== formData.confirmPassword &&
@@ -62,72 +78,47 @@ const Auth = () => {
         e.target.value === formData.confirmPassword &&
         problems.includes("Οι κωδικοί δεν ταριάζουν")
       ) {
-        setProblems(
-          problems.filter(
-            (problem, filter) => problem !== "Οι κωδικοί δεν ταριάζουν"
-          )
-        );
+        setProblems(problems.filter((problem) => problem !== "Οι κωδικοί δεν ταριάζουν"));
       }
       if (
         e.target.value.length < 8 &&
-        !problems.includes(
-          "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες."
-        )
+        !problems.includes("Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες.")
       ) {
-        setProblems([
-          ...problems,
-          "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες.",
-        ]);
+        setProblems([...problems, "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες."]);
       } else if (
         e.target.value.length >= 8 &&
-        problems.includes(
-          "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες."
-        )
+        problems.includes("Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες.")
       ) {
         setProblems(
           problems.filter(
             (problem, filter) =>
-              problem !==
-              "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες."
+              problem !== "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες."
           )
         );
       }
       if (
         e.target.value.replace(/\D/g, "").length < 3 &&
-        !problems.includes(
-          "Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς"
-        )
+        !problems.includes("Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς")
       ) {
-        setProblems([
-          ...problems,
-          "Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς",
-        ]);
+        setProblems([...problems, "Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς"]);
       } else if (
         e.target.value.replace(/\D/g, "").length >= 3 &&
         problems.includes("Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς")
       ) {
         setProblems(
           problems.filter(
-            (problem, filter) =>
-              problem !== "Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς"
+            (problem, filter) => problem !== "Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς"
           )
         );
       }
     } else if (e.target.name === "confirmPassword") {
-      if (
-        e.target.value !== formData.password &&
-        !problems.includes("Οι κωδικοί δεν ταριάζουν")
-      ) {
+      if (e.target.value !== formData.password && !problems.includes("Οι κωδικοί δεν ταριάζουν")) {
         setProblems([...problems, "Οι κωδικοί δεν ταριάζουν"]);
       } else if (
         e.target.value === formData.password &&
         problems.includes("Οι κωδικοί δεν ταριάζουν")
       ) {
-        setProblems(
-          problems.filter(
-            (problem, filter) => problem !== "Οι κωδικοί δεν ταριάζουν"
-          )
-        );
+        setProblems(problems.filter((problem, filter) => problem !== "Οι κωδικοί δεν ταριάζουν"));
       }
     }
     // console.log(formData);
@@ -207,10 +198,7 @@ const Auth = () => {
                 width: "100%",
               }}
             >
-              <img
-                src={require("../../assets/uth.png")}
-                style={{ width: "50px" }}
-              ></img>
+              <img src={require("../../assets/uth.png")} style={{ width: "50px" }}></img>
               <hr style={{ width: "100%" }}></hr>
             </Box>
             <form
@@ -229,12 +217,7 @@ const Auth = () => {
                       autoFocus
                       half
                     />
-                    <Input
-                      name="lastName"
-                      label="Last Name"
-                      handleChange={handleChange}
-                      half
-                    />
+                    <Input name="lastName" label="Last Name" handleChange={handleChange} half />
                   </>
                 )}
                 <Input
@@ -282,9 +265,7 @@ const Auth = () => {
                     <ul>
                       {problems.map((problem, index) => (
                         <li key={index}>
-                          <label style={{ wordBreak: "break-word" }}>
-                            {problem}
-                          </label>
+                          <label style={{ wordBreak: "break-word" }}>{problem}</label>
                         </li>
                       ))}
                     </ul>
@@ -293,9 +274,7 @@ const Auth = () => {
               ) : null}
               <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <Button onClick={switchMode}>
-                    {isSignUp ? "ΣΥΝΔΕΣΗ" : "ΕΓΓΡΑΦΗ"}
-                  </Button>
+                  <Button onClick={switchMode}>{isSignUp ? "ΣΥΝΔΕΣΗ" : "ΕΓΓΡΑΦΗ"}</Button>
                 </Grid>
               </Grid>
             </form>

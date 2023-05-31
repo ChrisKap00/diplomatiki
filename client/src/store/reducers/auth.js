@@ -18,11 +18,8 @@ export default (
           ...action.payload,
           result: {
             ...action.payload.result,
-            notifications: action.payload.result.notifications.map(
-              (notification) =>
-                notification.unread
-                  ? { ...notification, unreadClient: true }
-                  : notification
+            notifications: action.payload.result.notifications.map((notification) =>
+              notification.unread ? { ...notification, unreadClient: true } : notification
             ),
           },
         })
@@ -33,11 +30,8 @@ export default (
           ...action.payload,
           result: {
             ...action.payload.result,
-            notifications: action.payload.result.notifications.map(
-              (notification) =>
-                notification.unread
-                  ? { ...notification, unreadClient: true }
-                  : notification
+            notifications: action.payload.result.notifications.map((notification) =>
+              notification.unread ? { ...notification, unreadClient: true } : notification
             ),
           },
         },
@@ -73,33 +67,7 @@ export default (
           ...state.user,
           result: {
             ...state.user.result,
-            groups: state.user.result.groups.filter(
-              (id) => id !== action.payload
-            ),
-          },
-        },
-      };
-    case "ADD_POST_TO_USER":
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          result: {
-            ...state.user.result,
-            posts: [...state.user.result.posts, action.payload],
-          },
-        },
-      };
-    case "REMOVE_POST_FROM_USER":
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          result: {
-            ...state.user.result,
-            posts: state.user.result.posts.filter(
-              (post) => post.postId !== action.payload
-            ),
+            groups: state.user.result.groups.filter((id) => id !== action.payload),
           },
         },
       };
@@ -141,9 +109,7 @@ export default (
           result: {
             ...state.user.result,
             notifications: state.user.result.notifications.map((notification) =>
-              notification.unread
-                ? { ...notification, unread: false }
-                : { ...notification }
+              notification.unread ? { ...notification, unread: false } : { ...notification }
             ),
           },
         },

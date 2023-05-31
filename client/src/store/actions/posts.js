@@ -1,6 +1,7 @@
 import * as api from "../../api";
 
 export const post = (postData) => async (dispatch) => {
+  console.log(postData);
   dispatch({
     type: "SHOW_TEMP_POST",
     payload: {
@@ -38,26 +39,27 @@ export const post = (postData) => async (dispatch) => {
           comments: [],
         },
       });
-      dispatch({
-        type: "ADD_POST_TO_USER",
-        payload: { groupId: postData.groupId, postId: data.postId },
-      });
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-export const fetchPosts = (params) => async (dispatch) => {
+export const fetchPosts = (params, setShow) => async (dispatch) => {
   dispatch({ type: "START_LOADING_FETCH_POSTS" });
   try {
     const { data } = await api.fetchPosts(params);
     console.log(data);
     if (!data.error) {
+      if (setShow) setShow(1);
       dispatch({
         type: "FETCH_POSTS",
         payload: { posts: data.posts, last: data.last },
       });
+    } else if (data.error === 1) {
+      if (setShow) setShow(0);
+    } else {
+      if (setShow) setShow(2);
     }
   } catch (error) {
     console.log(error);
@@ -66,14 +68,19 @@ export const fetchPosts = (params) => async (dispatch) => {
 };
 
 export const fetchPost =
-  (postId, setPost, setIsloading) => async (dispatch) => {
+  ({ userId, postId }, setIsloading, setShow) =>
+  async (dispatch) => {
     setIsloading(true);
     try {
-      const { data } = await api.fetchPost(postId);
+      const { data } = await api.fetchPost({ userId, postId });
       console.log(data);
       if (!data.error) {
         setIsloading(false);
-        setPost(data.post);
+        dispatch({ type: "FETCH_POSTS", payload: { posts: [data.post], last: true } });
+        return;
+      } else if (data.error === 2) {
+        setIsloading(false);
+        setShow(2);
         return;
       }
     } catch (error) {
@@ -86,9 +93,9 @@ export const deletePost = (id) => async (dispatch) => {
   dispatch({ type: "SHOW_TEMP_DELETE_POST", payload: id });
   try {
     const { data } = await api.deletePost(id);
+    console.log(data);
     if (!data.error) {
       dispatch({ type: "DELETE_POST", payload: data.postId });
-      dispatch({ type: "REMOVE_POST_FROM_USER", payload: data.postId });
     }
   } catch (error) {
     console.log(error);

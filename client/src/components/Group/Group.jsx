@@ -10,6 +10,7 @@ import LoadingPost from "../LoadingPost/LoadingPost";
 import Post from "../Posts/Post/Post";
 import Member from "./Member/Member";
 import Create from "../Posts/Create/Create";
+import { Block } from "@mui/icons-material";
 
 const Search = styled("form")(({ theme }) => ({
   position: "relative",
@@ -50,14 +51,14 @@ const Group = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { groups } = useSelector((state) => state.groups);
+  const { user } = useSelector((state) => state.auth);
   const { isLoading, data, lastFetched } = useSelector((state) => state.posts);
-  const [group, setGroup] = useState(
-    groups.filter((e) => e._id === location.pathname.split("/")[2])[0]
-  );
+  const [group, setGroup] = useState(null);
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState(null);
   const [scrollHeight, setScrollHeight] = useState(window.scrollY);
   const [firstFetch, setFirstFetch] = useState(true);
+  const [show, setShow] = useState(0);
   let toggleSearch = false;
 
   useEffect(() => {
@@ -77,9 +78,7 @@ const Group = () => {
   }, []);
 
   useEffect(() => {
-    setGroup(
-      groups.filter((e) => e._id === location.pathname.split("/")[2])[0]
-    );
+    setGroup(groups.filter((e) => e._id === location.pathname.split("/")[2])[0]);
   }, [groups]);
 
   useEffect(() => {
@@ -89,23 +88,28 @@ const Group = () => {
     }
     console.log(page);
     dispatch(
-      fetchPosts({
-        groupId: location.pathname.split("/")[2],
-        page,
-        search,
-      })
+      fetchPosts(
+        {
+          userId: user?.result._id,
+          groupId: location.pathname.split("/")[2],
+          page,
+          search,
+        },
+        setShow
+      )
     );
     if (firstFetch) setFirstFetch(false);
   }, [page]);
 
   useEffect(() => {
+    console.log(data.map((e) => e.text));
+  }, [data]);
+
+  useEffect(() => {
     if (firstFetch || lastFetched) return;
     // console.log(scrollHeight, document.body.scrollHeight, isLoading);
     console.log(scrollHeight, window.innerHeight, document.body.clientHeight);
-    if (
-      scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 &&
-      !isLoading
-    ) {
+    if (scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 && !isLoading) {
       // console.log(scrollHeight, document.body.scrollHeight);
       setPage(page + 1);
     }
@@ -138,28 +142,30 @@ const Group = () => {
           // backgroundColor: "blue",
         }}
       >
-        <Card sx={{ padding: "1rem 0" }}>
-          <Search
-            onSubmit={(e) => {
-              e.preventDefault();
-              dispatch({ type: "CLEAR_POSTS" });
-              toggleSearch = true;
-              setPage(0);
-              dispatch(fetchPosts({ groupId: group._id, page: 0, search }));
-              // setSearch("");
-              toggleSearch = false;
-            }}
-            onChange={(e) => setSearch(e.target.value)}
-          >
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Αναζητήστε δημιοσιεύσεις..."
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>
-        </Card>
+        {show === 1 && (
+          <Card sx={{ padding: "1rem 0" }}>
+            <Search
+              onSubmit={(e) => {
+                e.preventDefault();
+                dispatch({ type: "CLEAR_POSTS" });
+                toggleSearch = true;
+                setPage(0);
+                dispatch(fetchPosts({ groupId: group._id, page: 0, search }));
+                // setSearch("");
+                toggleSearch = false;
+              }}
+              onChange={(e) => setSearch(e.target.value)}
+            >
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Αναζητήστε δημιοσιεύσεις..."
+                inputProps={{ "aria-label": "search" }}
+              />
+            </Search>
+          </Card>
+        )}
       </Box>
       <Box
         sx={{
@@ -177,18 +183,42 @@ const Group = () => {
             flex={2.5}
             sx={{
               paddingRight: { xs: 0, lg: "20px" },
-              // backgroundColor: "lightgreen",
               width: "100%",
             }}
           >
-            <Create group={group} />
+            {show === 1 && <Create group={group} />}
             <>
               {data.map((post, index) => (
                 <Post key={index} post={post} />
               ))}
-              {!lastFetched && <LoadingPost />}
-              {!lastFetched && <LoadingPost />}
+              {!lastFetched && show !== 2 && <LoadingPost />}
+              {!lastFetched && show !== 2 && <LoadingPost />}
             </>
+            {show === 2 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingTop: { xs: "8rem", sm: "10rem" },
+                  }}
+                >
+                  <Block sx={{ fontSize: "5rem" }} />
+                  <Typography sx={{ textAlign: "center" }}>
+                    Εγγραφείτε στην ομάδα για να μπορείτε να δείτε τις δημιοσιεύσεις.
+                  </Typography>
+                </Box>
+              </Box>
+            )}
           </Box>
           <Box
             flex={1}
