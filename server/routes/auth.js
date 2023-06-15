@@ -31,11 +31,9 @@ router.post("/signup", async (req, res) => {
       lastName,
     });
 
-    const token = jwt.sign(
-      { email: result.email, id: result._id },
-      "EMAIL_SECRET",
-      { expiresIn: "1d" }
-    );
+    const token = jwt.sign({ email: result.email, id: result._id }, process.env.JWT_KEY, {
+      expiresIn: "1d",
+    });
 
     const verificationURL = `http://localhost:3000/verification/${token}`;
 
@@ -66,24 +64,19 @@ router.post("/signin", async (req, res) => {
         message: "Δεν υπάρχει λογαριασμός με αυτή την ηλεκτρονική διεύθυνση.",
       });
     }
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      existingUser.password
-    );
+    const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
 
     if (!isPasswordCorrect) {
       // console.log(bcrypt.decodeBase64(existingUser.password));
-      return res
-        .status(500)
-        .json({ error: 1, message: "Ο κωδικός είναι λανθασμένος." });
+      return res.status(500).json({ error: 1, message: "Ο κωδικός είναι λανθασμένος." });
     }
 
     if (!existingUser.verified) {
-      const token = jwt.sign({ email, id: existingUser._id }, "EMAIL_SECRET", {
+      const token = jwt.sign({ email, id: existingUser._id }, process.env.JWT_KEY, {
         expiresIn: "1d",
       });
 
-      const verificationURL = `http://localhost:3000/verification/${token}`;
+      const verificationURL = `${process.env.VERIFICATION_URL}${token}`;
 
       await transporter.sendMail({
         to: email,
@@ -100,7 +93,7 @@ router.post("/signin", async (req, res) => {
 
     const token = jwt.sign(
       { email: existingUser.email, id: existingUser._id },
-      "EMAIL_SECRET"
+      process.env.JWT_KEY
     );
     existingUser.verified = undefined;
     return res.status(200).json({ result: existingUser, token: token });
@@ -112,12 +105,10 @@ router.post("/signin", async (req, res) => {
 router.get("/verification/:token", async (req, res) => {
   let tokenObj;
   try {
-    tokenObj = jwt.verify(req.params.token, "EMAIL_SECRET");
+    tokenObj = jwt.verify(req.params.token, process.env.JWT_KEY);
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ error: -1, message: "Ο σύνδεσμος έχει λήξει" });
+    return res.status(500).json({ error: -1, message: "Ο σύνδεσμος έχει λήξει" });
   }
 
   try {
@@ -136,8 +127,7 @@ router.get("/verification/:token", async (req, res) => {
     await User.findByIdAndUpdate(tokenObj.id, { verified: true });
     return res.status(200).json({
       error: 1,
-      message:
-        "Η ηλεκτρονική διεύθυνση επαληθεύτηκε επιτυχώς. Μπορείτε να κλείσετε το παράθυρο.",
+      message: "Η ηλεκτρονική διεύθυνση επαληθεύτηκε επιτυχώς. Μπορείτε να κλείσετε το παράθυρο.",
     });
   } catch (error) {
     console.log(error);

@@ -9,7 +9,7 @@ const auth = (req) => {
     let decodedData;
 
     if (token && isCustomAuth) {
-      decodedData = jwt.verify(token, "EMAIL_SECRET");
+      decodedData = jwt.verify(token, process.env.JWT_KEY);
 
       req.userId = decodedData?.id;
     } else {

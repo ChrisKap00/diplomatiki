@@ -63,9 +63,7 @@ const Inbox = ({ socket }) => {
   const dispatch = useDispatch();
   const [id, setId] = useState(null);
   const [info, setInfo] = useState(null);
-  const [mobileChatsOpen, setMobileChatsOpen] = useState(
-    !location.search.substring(4)
-  );
+  const [mobileChatsOpen, setMobileChatsOpen] = useState(!location.search.substring(4));
   const navigate = useNavigate();
   const [messageData, setMessageData] = useState({
     text: null,
@@ -85,9 +83,7 @@ const Inbox = ({ socket }) => {
   useEffect(() => {
     if (location.search) {
       setId(location.search.substring(4));
-      const chat = messages.find(
-        (chat) => chat.withId === location.search.substring(4)
-      );
+      const chat = messages.find((chat) => chat.withId === location.search.substring(4));
       if (chat) {
         setInfo({ pfp: chat.withPfp, name: chat.withName });
       } else {
@@ -103,7 +99,7 @@ const Inbox = ({ socket }) => {
   useEffect(() => {
     const topPos = document.getElementById("dummy").offsetTop;
     document.getElementById("scrollBox").scrollTop = topPos;
-  }, [messages]);
+  }, [messages, info]);
 
   return (
     <Box
@@ -127,11 +123,7 @@ const Inbox = ({ socket }) => {
             sx={{
               borderRight: "1px solid rgba(255, 255, 255, 0.1)",
               display: {
-                xs: mobileChatsOpen
-                  ? isLoadingMessages
-                    ? " flex"
-                    : "block"
-                  : "none",
+                xs: mobileChatsOpen ? (isLoadingMessages ? " flex" : "block") : "none",
                 lg: isLoadingMessages ? " flex" : "block",
               },
               alignItems: "center",
@@ -179,23 +171,15 @@ const Inbox = ({ socket }) => {
                 >
                   <ArrowBack />
                 </IconButton>
-                <Avatar
-                  src={info?.pfp || defaultPfp}
-                  sx={{ marginRight: "10px" }}
-                />
-                <Typography sx={{ fontSize: "1.1rem" }}>
-                  {info !== null && info.name}
-                </Typography>
+                <Avatar src={info?.pfp || defaultPfp} sx={{ marginRight: "10px" }} />
+                <Typography sx={{ fontSize: "1.1rem" }}>{info !== null && info.name}</Typography>
               </Box>
             )}
             <Box
               sx={{
                 height: location.search ? "calc(100% - 106px)" : "100%",
                 overflow: "auto",
-                display:
-                  isLoadingMessages || !location.search.substring(4)
-                    ? "flex"
-                    : "block",
+                display: isLoadingMessages || !location.search.substring(4) ? "flex" : "block",
                 justifyContent: "center",
                 alignItems: "center",
               }}
@@ -219,9 +203,7 @@ const Inbox = ({ socket }) => {
                         <Message
                           key={index}
                           message={message}
-                          withId={
-                            messages?.find((el) => el.withId === id)?.withId
-                          }
+                          withId={messages?.find((el) => el.withId === id)?.withId}
                         />
                       ))}
                 </>
@@ -255,9 +237,7 @@ const Inbox = ({ socket }) => {
                               ...messageData,
                               image: data[0].base64_file,
                             },
-                            fetchChat:
-                              messages.filter((chat) => chat.withId === id)
-                                .length === 0,
+                            fetchChat: messages.filter((chat) => chat.withId === id).length === 0,
                           },
                           info,
                           socket
@@ -286,14 +266,10 @@ const Inbox = ({ socket }) => {
                                 base64: data.base64,
                                 name: data.name,
                                 size: data.size,
-                                type: data.type.substring(
-                                  data.type.indexOf("/") + 1
-                                ),
+                                type: data.type.substring(data.type.indexOf("/") + 1),
                               },
                             },
-                            fetchChat:
-                              messages.filter((chat) => chat.withId === id)
-                                .length === 0,
+                            fetchChat: messages.filter((chat) => chat.withId === id).length === 0,
                           },
                           info,
                           socket
@@ -331,9 +307,7 @@ const Inbox = ({ socket }) => {
                             receiverId: id,
                             senderName: `${user?.result.firstName} ${user?.result.lastName}`,
                             message: messageData,
-                            fetchChat:
-                              messages.filter((chat) => chat.withId === id)
-                                .length === 0,
+                            fetchChat: messages.filter((chat) => chat.withId === id).length === 0,
                           },
                           info,
                           socket
@@ -357,9 +331,7 @@ const Inbox = ({ socket }) => {
                           senderId: user.result._id,
                           receiverId: id,
                           message: messageData,
-                          fetchChat:
-                            messages.filter((chat) => chat.withId === id)
-                              .length === 0,
+                          fetchChat: messages.filter((chat) => chat.withId === id).length === 0,
                         },
                         info
                       )

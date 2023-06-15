@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
+import "dotenv/config.js";
 import { Server } from "socket.io";
 
 import authRoutes from "./routes/auth.js";
@@ -21,23 +22,20 @@ app.use("/posts", postRoutes);
 app.use("/profile", profileRoutes);
 app.use("/messages", messageRoutes);
 
-const PORT = 5000;
-
 mongoose.set("strictQuery", false);
 
-mongoose.connect(
-  "mongodb+srv://diplomatiki:JzKQhAFUkYxp6q5r@cluster0.doynqwj.mongodb.net/?retryWrites=true&w=majority",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
+mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const server = app.listen(process.env.PORT, () =>
+  console.log(`Server running on port ${process.env.PORT}`)
 );
-// .catch((error) => console.log(error.message));
-const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.ORIGIN,
     credentials: true,
   },
 });
