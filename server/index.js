@@ -22,6 +22,10 @@ app.use("/posts", postRoutes);
 app.use("/profile", profileRoutes);
 app.use("/messages", messageRoutes);
 
+app.get("/", (req, res) => {
+  res.send("APP IS RUNNING");
+});
+
 mongoose.set("strictQuery", false);
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
