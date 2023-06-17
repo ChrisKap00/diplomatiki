@@ -32,7 +32,7 @@ function App() {
 
   useEffect(() => {
     if (!user) return;
-    setSocket({ ...socket, current: io("http://localhost:5000") });
+    setSocket({ ...socket, current: io(process.env.REACT_APP_SERVER_URL) });
     dispatch(fetchNotifications(user.result._id));
   }, [user?.result._id]);
 

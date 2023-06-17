@@ -35,7 +35,7 @@ router.post("/signup", async (req, res) => {
       expiresIn: "1d",
     });
 
-    const verificationURL = `http://localhost:3000/verification/${token}`;
+    const verificationURL = `${process.env.VERIFICATION_URL}/${token}`;
 
     await transporter.sendMail({
       to: email,

@@ -2,7 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
-import "dotenv/config.js";
 import { Server } from "socket.io";
 
 import authRoutes from "./routes/auth.js";

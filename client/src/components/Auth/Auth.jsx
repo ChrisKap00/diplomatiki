@@ -22,7 +22,7 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(true);
   const [formData, setFormData] = useState(initialState);
   const [problems, setProblems] = useState([
-    // "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).",
+    "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).",
     "Ο κωδικός πρέπει να έχει μήκος τουλάχιστον 8 χαρακτήρες.",
     "Ο κωδικός πρέπει να περιέχει τουλάχιστον 3 αριθμούς",
     "Οι κωδικοί δεν ταριάζουν",
@@ -51,23 +51,23 @@ const Auth = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // if (e.target.name === "email") {
-    //   if (
-    //     e.target.value.endsWith("@uth.gr") &&
-    //     problems.includes("Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).")
-    //   ) {
-    //     setProblems(
-    //       problems.filter(
-    //         (problem) => problem !== "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr)."
-    //       )
-    //     );
-    //   } else if (
-    //     !e.target.value.endsWith("@uth.gr") &&
-    //     !problems.includes("Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).")
-    //   ) {
-    //     setProblems([...problems, "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr)."]);
-    //   }
-    // }
+    if (e.target.name === "email") {
+      if (
+        e.target.value.endsWith("@uth.gr") &&
+        problems.includes("Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).")
+      ) {
+        setProblems(
+          problems.filter(
+            (problem) => problem !== "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr)."
+          )
+        );
+      } else if (
+        !e.target.value.endsWith("@uth.gr") &&
+        !problems.includes("Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr).")
+      ) {
+        setProblems([...problems, "Χρησιμοποιήστε διεύθυνση e-mail του πανεπιστημίου (@uth.gr)."]);
+      }
+    }
     if (e.target.name === "password") {
       if (
         e.target.value !== formData.confirmPassword &&
