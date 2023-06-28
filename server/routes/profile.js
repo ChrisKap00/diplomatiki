@@ -2,6 +2,7 @@ import express from "express";
 
 import Post from "../models/post.js";
 import User from "../models/user.js";
+import Group from "../models/group.js";
 
 import auth from "../middleware/auth.js";
 
@@ -17,6 +18,7 @@ router.post("/changePfp", async (req, res) => {
     user.pfp = pfp;
     await User.findByIdAndUpdate(userId, user, { new: true });
     const posts = await Post.find({ userId });
+    const groups = await Group.find();
     for (let i in posts) {
       posts[i].userPfp = pfp;
       posts[i].comments = posts[i].comments.map((comment) => ({
@@ -30,6 +32,15 @@ router.post("/changePfp", async (req, res) => {
     }
     for (let i in posts) {
       await Post.findByIdAndUpdate(posts[i]._id, posts[i], { new: true });
+    }
+    for (let group of groups) {
+      for (let user of group.users) {
+        if (user._id === userId) {
+          user.pfp = pfp;
+          await Group.findByIdAndUpdate(group._id, group, { new: true });
+          break;
+        }
+      }
     }
     res.status(200).json({ error: 0 });
   } catch (error) {

@@ -9,11 +9,14 @@ import groupRoutes from "./routes/groups.js";
 import postRoutes from "./routes/posts.js";
 import profileRoutes from "./routes/profile.js";
 import messageRoutes from "./routes/messages.js";
+import dotenv from "dotenv";
 
 const app = express();
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
+
+dotenv.config();
 
 app.use("/auth", authRoutes);
 app.use("/groups", groupRoutes);
@@ -32,7 +35,7 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
   useUnifiedTopology: true,
 });
 
-const server = app.listen(process.env.PORT, () =>
+const server = app.listen(process.env.PORT || 5000, () =>
   console.log(`Server running on port ${process.env.PORT}`)
 );
 

@@ -1,12 +1,11 @@
 import { Box, Fab } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import testImage from "../../assets/login_bg.jpg";
 import Create from "./Create/Create";
 import Post from "./Post/Post";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingPost from "../LoadingPost/LoadingPost";
 import { fetchPosts } from "../../store/actions/posts";
-import { Group } from "@mui/icons-material";
+import { GroupSharp } from "@mui/icons-material";
 
 const Posts = ({ open, setOpen }) => {
   const { isLoading, data, lastFetched } = useSelector((state) => state.posts);
@@ -42,10 +41,7 @@ const Posts = ({ open, setOpen }) => {
     if (firstFetch || lastFetched) return;
     // console.log(scrollHeight, document.body.scrollHeight, isLoading);
     console.log(scrollHeight, window.innerHeight, document.body.clientHeight);
-    if (
-      scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 &&
-      !isLoading
-    ) {
+    if (scrollHeight + window.innerHeight >= document.body.clientHeight - 1700 && !isLoading) {
       // console.log(scrollHeight, document.body.scrollHeight);
       setPage(page + 1);
     }
@@ -90,7 +86,7 @@ const Posts = ({ open, setOpen }) => {
           setOpen(true);
         }}
       >
-        <Group />
+        <GroupSharp />
       </Fab>
       {/* </Box> */}
     </>

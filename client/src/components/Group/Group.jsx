@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Box, Button, Card, InputBase, Stack, Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
+import { Box, Card, Fab, InputBase, Stack, SwipeableDrawer, Typography } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,7 +10,7 @@ import LoadingPost from "../LoadingPost/LoadingPost";
 import Post from "../Posts/Post/Post";
 import Member from "./Member/Member";
 import Create from "../Posts/Create/Create";
-import { Block } from "@mui/icons-material";
+import { Block, GroupSharp } from "@mui/icons-material";
 
 const Search = styled("form")(({ theme }) => ({
   position: "relative",
@@ -59,6 +59,7 @@ const Group = () => {
   const [scrollHeight, setScrollHeight] = useState(window.scrollY);
   const [firstFetch, setFirstFetch] = useState(true);
   const [show, setShow] = useState(0);
+  const [open, setOpen] = useState(false);
   let toggleSearch = false;
 
   useEffect(() => {
@@ -116,7 +117,32 @@ const Group = () => {
   }, [scrollHeight]);
 
   return (
-    <Box>
+    <>
+      <SwipeableDrawer
+        anchor="left"
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        onOpen={() => {
+          setOpen(true);
+        }}
+      >
+        <Box
+          sx={{
+            height: "100%",
+            width: "85%",
+            overflow: "auto",
+            minWidth: "300px",
+          }}
+          p={2}
+        >
+          <Typography variant="h5" sx={{ fontWeight: "600", marginBottom: "10px" }}>
+            Μέλη
+          </Typography>
+          {group !== null && group?.users.map((user, index) => <Member key={index} user={user} />)}
+        </Box>
+      </SwipeableDrawer>
       <Box
         sx={{
           padding: "2rem 1rem",
@@ -134,7 +160,6 @@ const Group = () => {
         sx={{
           padding: {
             xs: "0.5rem",
-            md: "0.5rem 5rem",
             lg: "0.5rem 2rem",
             xl: "0.5rem 10rem",
           },
@@ -171,11 +196,9 @@ const Group = () => {
         sx={{
           padding: {
             xs: "1rem 0.5rem",
-            md: "1rem 5rem",
             lg: "1rem 2rem",
             xl: "1rem 10rem",
           },
-          // backgroundColor: "red",
         }}
       >
         <Stack direction="row" justifyContent="space-between">
@@ -220,6 +243,24 @@ const Group = () => {
               </Box>
             )}
           </Box>
+          <Fab
+            color="primary"
+            sx={{
+              display: {
+                xs: "auto",
+                lg: "none",
+              },
+              position: "fixed",
+              bottom: "20px",
+              right: { xs: "20px", sm: "90px", md: "120px" },
+              // right: "20px",
+            }}
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            <GroupSharp />
+          </Fab>
           <Box
             flex={1}
             sx={{
@@ -232,7 +273,7 @@ const Group = () => {
           </Box>
         </Stack>
       </Box>
-    </Box>
+    </>
   );
 };
 

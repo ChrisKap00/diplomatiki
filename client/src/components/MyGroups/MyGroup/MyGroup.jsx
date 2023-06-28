@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 
-const MyGroup = ({ group, drawer }) => {
+const MyGroup = ({ group }) => {
   return (
     <Link
       to={`/group/${group._id}`}
@@ -13,7 +13,6 @@ const MyGroup = ({ group, drawer }) => {
     >
       <Box
         sx={{
-          // minWidth: drawer ? "300px" : "auto",
           backgroundColor: "rgba(255, 255, 255, 0.08)",
           borderRadius: "10px",
           padding: "0.5rem 1rem",
